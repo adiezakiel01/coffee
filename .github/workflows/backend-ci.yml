@@ -52,7 +52,7 @@ jobs:
       - name: Create test database
         env:
           PGPASSWORD: coffee
-        run: psql -h localhost -U coffee -d coffee_tracker -c "CREATE DATABASE coffee_tracker_test;"
+        run: psql -h localhost -U coffee -d postgres -c "CREATE DATABASE coffee_tracker_test;"
 
       - name: Lint with ruff
         run: ruff check .
