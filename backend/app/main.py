@@ -8,7 +8,7 @@ from app.database import engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
+    async with engine.begin():
         print("Database connection established")
     yield
 
