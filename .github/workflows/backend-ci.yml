@@ -49,10 +49,12 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Create test database
+      - name: Create databases
         env:
           PGPASSWORD: coffee
-        run: psql -h localhost -U coffee -d postgres -c "CREATE DATABASE coffee_tracker_test;"
+        run: |
+          psql -h localhost -U coffee -d postgres -c "CREATE DATABASE coffee_tracker;" || true
+          psql -h localhost -U coffee -d postgres -c "CREATE DATABASE coffee_tracker_test;"
 
       - name: Lint with ruff
         run: ruff check .
