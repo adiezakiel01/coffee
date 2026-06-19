@@ -28,7 +28,7 @@ async def get_bean(bean_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bean not found")
     return bean
 
-@router.patch("/{bean_id}", respoonse_model=BeanResponse)
+@router.patch("/{bean_id}", response_model=BeanResponse)
 async def update_bean(bean_id: int, bean_data: BeanUpdate, db: AsyncSession = Depends(get_db)):
     bean = await db.get(Bean, bean_id)
     if bean is None:
