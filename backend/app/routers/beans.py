@@ -3,8 +3,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models.beans import Bean
-from app.schemas.beans import BeanCreate, BeanRead, BeanUpdate
+from app.models.bean import Bean
+from app.schemas.bean import BeanCreate, BeanRead, BeanUpdate
 
 router = APIRouter(prefix="/beans", tags=["beans"])
 
