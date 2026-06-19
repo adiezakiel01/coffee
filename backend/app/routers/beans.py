@@ -6,9 +6,9 @@ from app.database import get_db
 from app.models.beans import Bean
 from app.schemas.beans import BeanCreate, BeanRead, BeanUpdate
 
-router = APIRouter(preix="/beans", tags=["beans"])
+router = APIRouter(prefix="/beans", tags=["beans"])
 
-@router.post("", response_model=BeanResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=BeanRead, status_code=status.HTTP_201_CREATED)
 async def create_bean(bean_data: BeanCreate, db: AsyncSession = Depends(get_db)):
     bean = Bean(**bean_data.model_dump())
     db.add(bean)
@@ -16,7 +16,12 @@ async def create_bean(bean_data: BeanCreate, db: AsyncSession = Depends(get_db))
     await db.refresh(bean)
     return bean
 
-@router.get("/{bean_id}", response_model=BeanResponse)
+@router.get("", response_model=list[BeanRead])
+async def list_beans(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(Bean).order_by(Bean.created_at.desc()))
+    return result.scalars().all()
+
+@router.get("/{bean_id}", response_model=BeanRead)
 async def get_bean(bean_id: int, db: AsyncSession = Depends(get_db)):
     bean = await db.get(Bean, bean_id)
     if bean is None:
