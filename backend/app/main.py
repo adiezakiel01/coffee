@@ -4,7 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine
-from app.routers import beans
+from app.routers import beans, brews
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,12 +16,13 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
     print("Database connection closed")
 
+
 app = FastAPI(
-    title="Coffee brew tracker",    
+    title="Coffee brew tracker",
     description="Track and analyse your pour-over coffee brewing sessions",
     version="0.1.0",
     lifespan=lifespan,
-    )
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,7 +33,10 @@ app.add_middleware(
 )
 
 app.include_router(beans.router)
+app.include_router(brews.router)
+
 
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "service": "coffee brew tracker"}
+
