@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select, update
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models import brew
 from app.models.bean import Bean
 from app.models.brew import Brew
 from app.schemas.brew import BrewCreate, BrewUpdate, BrewResponse
