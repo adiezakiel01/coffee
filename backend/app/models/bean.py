@@ -1,7 +1,13 @@
 from datetime import date, datetime
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Date, DateTime, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+
+if TYPE_CHECKING:
+    from app.models.brew import Brew
+
 
 class Bean(Base):
     __tablename__ = "beans"
@@ -14,3 +20,6 @@ class Bean(Base):
     notes: Mapped[str | None] = mapped_column(Text)
     roast_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    brews: Mapped[list["Brew"]] = relationship("Brew", back_populates="bean")
+

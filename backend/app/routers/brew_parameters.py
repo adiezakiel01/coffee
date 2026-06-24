@@ -30,7 +30,7 @@ async def create_brew_parameter(
 ):
     await get_brew_or_404(brew_id, db)
 
-    parameter = BrewParameter(brew_id=brew_id, **brew_parameter.dict())
+    parameter = BrewParameter(brew_id=brew_id, **brew_parameter.model_dump())
     db.add(parameter)
     await db.commit()
     await db.refresh(parameter)

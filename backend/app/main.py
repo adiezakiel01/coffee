@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine
-from app.routers import beans, brews, brew_parameters
+from app.routers import beans, brews, brew_parameters, analytics
 
 
 @asynccontextmanager
@@ -35,6 +35,7 @@ app.add_middleware(
 app.include_router(beans.router)
 app.include_router(brews.router)
 app.include_router(brew_parameters.router)
+app.include_router(analytics.router)
 
 
 @app.get("/health")

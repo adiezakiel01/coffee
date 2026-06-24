@@ -13,6 +13,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
 
 if TYPE_CHECKING:
+    from app.models.bean import Bean
     from app.models.brew_parameter import BrewParameter
 
 
@@ -37,6 +38,8 @@ class Brew(Base):
         DateTime(timezone=True), default=datetime.utcnow
     )
     rating: Mapped[int | None] = mapped_column(SmallInteger)
+
+    bean: Mapped["Bean | None"] = relationship("Bean", back_populates="brews")
 
     parameters: Mapped[list["BrewParameter"]] = relationship(
         "BrewParameter", back_populates="brew", cascade="all, delete-orphan"

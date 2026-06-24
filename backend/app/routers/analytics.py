@@ -17,7 +17,7 @@ from app.services.analytics import (
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
 
-@router.get("/rating_trend", response_model=list[RatingTrendPoint])
+@router.get("/rating-trend", response_model=list[RatingTrendPoint])
 async def get_rating_trend(db: AsyncSession = Depends(get_db)):
     """
     Get the trend of ratings over time for all brews.
