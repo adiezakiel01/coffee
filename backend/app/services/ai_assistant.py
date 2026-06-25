@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.bean import Bean
-from app.models.brew import Brew
+
 from app.services.analytics import (
     brews_to_dataframe,
     compute_correlation,
