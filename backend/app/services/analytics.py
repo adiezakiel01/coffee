@@ -90,7 +90,7 @@ def suggest_brew_parameters(
     if correlations:
         strong_correlations = {
             field: value
-            for field, value in correlatons.items()
+            for field, value in correlations.items()
             if value is not None and abs(value) >= 0.5
         }
         if strong_correlations:
