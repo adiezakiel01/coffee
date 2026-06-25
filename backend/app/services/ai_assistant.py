@@ -16,6 +16,8 @@ from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
 from app.config import settings
 
+MAX_HISTORY_MESSAGES = 10
+
 SYSTEM_PROMPT = """ You are a helpful pour-over coffee brewing assistant. \
 You have access to the user's real brew history and statistics below. \
 Use ONLY this data to answer questions — never invent brew parameters, \
@@ -100,6 +102,9 @@ async def chat_with_assistant(
     response = await llm.ainvoke(messages)
 
     history.append(AIMessage(content=response.content))
+
+    history = history[-MAX_HISTORY_MESSAGES:]
+
     _chat_sessions[session_id] = history
 
     return response.content
