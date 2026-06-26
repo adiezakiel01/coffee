@@ -17,22 +17,25 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <main className="p-8">Loading...</main>;
-  if (error) return <main className="p-8 text-red-600">Error: {error}</main>;
+  if (loading) return <p className="text-ink/60">Loading...</p>;
+  if (error) return <p className="text-red-400">Error: {error}</p>;
 
   return (
-    <main className="p-8">
-      <h1 className="text-2xl font-bold mb-4">Your Beans</h1>
-      <ul className="space-y-2">
+    <div>
+      <p className="text-xs text-accent uppercase tracking-wide mb-1">beans</p>
+      <h1 className="text-xl font-medium mb-6">Your beans</h1>
+
+      <div className="grid grid-cols-2 gap-3">
         {beans.map((bean) => (
-          <li key={bean.id} className="border rounded p-3">
-            <p className="font-semibold">{bean.name}</p>
-            <p className="text-sm text-gray-600">
-              {bean.origin} · {bean.process}
+          <div key={bean.id} className="bg-card rounded-xl p-4">
+            <p className="font-medium text-card-title">{bean.name}</p>
+            <p className="text-sm text-card-muted">
+              {bean.origin || "unknown origin"} ·{" "}
+              {bean.process || "unknown process"}
             </p>
-          </li>
+          </div>
         ))}
-      </ul>
-    </main>
+      </div>
+    </div>
   );
 }
