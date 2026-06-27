@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { beansApi, brewsApi } from "@/lib/api";
 import type { Bean, Brew, BrewCreate } from "@/types";
 
-const emptyForm BrewCreate = {
+const emptyForm: BrewCreate = {
   bean_id: null,
   grind_size: "",
   water_temp_celsius: undefined,
@@ -71,7 +71,7 @@ export default function BrewsPage() {
       setSubmitting(false);
     }
   }
-  
+
   function startEdit(brew: Brew) {
     setEditingId(brew.id);
     setEditForm({
@@ -94,7 +94,7 @@ export default function BrewsPage() {
   async function handleDelete(brewId: number) {
     if (!confirm("Delete this brew? This cannot be undone.")) return;
     try {
-      await brewsApi.delete(brewId):
+      await brewsApi.delete(brewId);
       setBrews((prev) => prev.filter((b) => b.id !== brewId));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete brew");
@@ -122,7 +122,10 @@ export default function BrewsPage() {
         <select
           value={form.bean_id ?? ""}
           onChange={(e) =>
-            setForm({ ...form, bean_id: e.target.value ? Number(e.target.value) : null })
+            setForm({
+              ...form,
+              bean_id: e.target.value ? Number(e.target.value) : null,
+            })
           }
           className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
         >
@@ -150,7 +153,9 @@ export default function BrewsPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              water_temp_celsius: e.target.value ? Number(e.target.value) : undefined,
+              water_temp_celsius: e.target.value
+                ? Number(e.target.value)
+                : undefined,
             })
           }
           className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
@@ -188,7 +193,10 @@ export default function BrewsPage() {
           max={10}
           value={form.rating ?? ""}
           onChange={(e) =>
-            setForm({ ...form, rating: e.target.value ? Number(e.target.value) : undefined })
+            setForm({
+              ...form,
+              rating: e.target.value ? Number(e.target.value) : undefined,
+            })
           }
           className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
         />
@@ -200,7 +208,9 @@ export default function BrewsPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              bloom_time_seconds: e.target.value ? Number(e.target.value) : undefined,
+              bloom_time_seconds: e.target.value
+                ? Number(e.target.value)
+                : undefined,
             })
           }
           className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
@@ -212,7 +222,9 @@ export default function BrewsPage() {
           onChange={(e) =>
             setForm({
               ...form,
-              total_time_seconds: e.target.value ? Number(e.target.value) : undefined,
+              total_time_seconds: e.target.value
+                ? Number(e.target.value)
+                : undefined,
             })
           }
           className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
@@ -253,10 +265,15 @@ export default function BrewsPage() {
             {brews.map((brew) => {
               const isEditing = editingId === brew.id;
               return (
-                <tr key={brew.id} className="border-b border-card-ink-muted/10 text-card-ink">
+                <tr
+                  key={brew.id}
+                  className="border-b border-card-ink-muted/10 text-card-ink"
+                >
                   <td className="px-4 py-2.5">{beanName(brew.bean_id)}</td>
                   <td className="px-4 py-2.5 font-mono text-xs">
-                    {brew.water_temp_celsius ? `${brew.water_temp_celsius}°C` : "—"}
+                    {brew.water_temp_celsius
+                      ? `${brew.water_temp_celsius}°C`
+                      : "—"}
                   </td>
                   <td className="px-4 py-2.5 font-mono text-xs">
                     {brew.coffee_grams ?? "—"}g / {brew.water_grams ?? "—"}g
@@ -266,7 +283,10 @@ export default function BrewsPage() {
                       <input
                         value={editForm.grind_size ?? ""}
                         onChange={(e) =>
-                          setEditForm({ ...editForm, grind_size: e.target.value })
+                          setEditForm({
+                            ...editForm,
+                            grind_size: e.target.value,
+                          })
                         }
                         className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20 w-20"
                       />
@@ -282,7 +302,10 @@ export default function BrewsPage() {
                         max={10}
                         value={editForm.rating ?? ""}
                         onChange={(e) =>
-                          setEditForm({ ...editForm, rating: Number(e.target.value) })
+                          setEditForm({
+                            ...editForm,
+                            rating: Number(e.target.value),
+                          })
                         }
                         className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20 w-14"
                       />
@@ -297,7 +320,10 @@ export default function BrewsPage() {
                       <input
                         value={editForm.tasting_notes ?? ""}
                         onChange={(e) =>
-                          setEditForm({ ...editForm, tasting_notes: e.target.value })
+                          setEditForm({
+                            ...editForm,
+                            tasting_notes: e.target.value,
+                          })
                         }
                         className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20 w-full"
                       />
@@ -343,8 +369,12 @@ export default function BrewsPage() {
             })}
             {brews.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-6 text-center text-card-ink-muted text-sm">
-                  No brews logged yet — use the form above to log your first one.
+                <td
+                  colSpan={7}
+                  className="px-4 py-6 text-center text-card-ink-muted text-sm"
+                >
+                  No brews logged yet — use the form above to log your first
+                  one.
                 </td>
               </tr>
             )}
