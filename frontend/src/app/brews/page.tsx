@@ -127,7 +127,7 @@ export default function BrewsPage() {
               bean_id: e.target.value ? Number(e.target.value) : null,
             })
           }
-          className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+          className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-gray-400 text-card-ink border border-card-ink-muted/20"
         >
           <option value="">No bean selected</option>
           {beans.map((bean) => (
@@ -247,21 +247,21 @@ export default function BrewsPage() {
       </form>
 
       {/* Brew history table */}
-      <h2 className="text-sm font-medium text-ink/70 mb-3">History</h2>
+      <h2 className="text-l font-medium text-ink mb-3">History</h2>
       <div className="bg-card rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-card-ink-muted/15 text-card-ink-muted text-left">
-              <th className="px-4 py-2.5 font-normal">Bean</th>
-              <th className="px-4 py-2.5 font-normal">Temp</th>
-              <th className="px-4 py-2.5 font-normal">Coffee/Water</th>
-              <th className="px-4 py-2.5 font-normal">Grind</th>
-              <th className="px-4 py-2.5 font-normal">Rating</th>
-              <th className="px-4 py-2.5 font-normal">Notes</th>
-              <th className="px-4 py-2.5 font-normal"></th>
+            <tr className="border-b border-card-ink-muted/15 text-card-ink-muted text-left text-accent-roast">
+              <th className="px-4 py-2.5 font-bold">Bean</th>
+              <th className="px-4 py-2.5 font-bold">Temp</th>
+              <th className="px-4 py-2.5 font-bold">Coffee/Water</th>
+              <th className="px-4 py-2.5 font-bold">Grind</th>
+              <th className="px-4 py-2.5 font-bold">Rating</th>
+              <th className="px-4 py-2.5 font-bold">Notes</th>
+              <th className="px-4 py-2.5 font-bold"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-accent">
             {brews.map((brew) => {
               const isEditing = editingId === brew.id;
               return (
@@ -310,7 +310,7 @@ export default function BrewsPage() {
                         className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20 w-14"
                       />
                     ) : (
-                      <span className="text-accent-strong">
+                      <span className="font-semibold text-accent-strong">
                         {brew.rating ? `${brew.rating}/10` : "—"}
                       </span>
                     )}
