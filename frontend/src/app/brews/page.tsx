@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { beansApi, brewsApi } from "@/lib/api";
 import type { Bean, Brew, BrewCreate } from "@/types";
+import SliderInput from "@/components/SliderInput";
+import NewBeanModal from "@/components/NewBeanModal";
 
 const emptyForm: BrewCreate = {
   bean_id: null,
@@ -23,6 +25,7 @@ export default function BrewsPage() {
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<BrewCreate>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
+  const [showNewBeanModal, setShowNewBeanModal] = useState(false);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Brew>>({});
@@ -49,6 +52,20 @@ export default function BrewsPage() {
   function beanName(beanId: number | null): string {
     if (beanId === null) return "-";
     return beans.find((b) => b.id === beanId)?.name ?? "unknown bean";
+  }
+
+  function handleBeanSelectChange(value: string) {
+    if (value === "__new__") {
+      setShowNewBeanModal(true);
+      return;
+    }
+    setForm({ ...form, bean_id: value ? Number(value) : null });
+  }
+
+  function handleBeanCreated(bean: Bean) {
+    setBeans((prev) => [...prev, bean]);
+    setForm({ ...form, bean_id: bean.id });
+    setShowNewBeanModal(false);
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -115,120 +132,88 @@ export default function BrewsPage() {
       )}
 
       {/* Brew logger form */}
-      <form
-        onSubmit={handleCreate}
-        className="bg-card rounded-xl p-5 mb-8 grid grid-cols-4 gap-3"
-      >
-        <select
-          value={form.bean_id ?? ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              bean_id: e.target.value ? Number(e.target.value) : null,
-            })
-          }
-          className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-gray-400 text-card-ink border border-card-ink-muted/20"
-        >
-          <option value="">No bean selected</option>
-          {beans.map((bean) => (
-            <option key={bean.id} value={bean.id}>
-              {bean.name}
-            </option>
-          ))}
-        </select>
+      <form onSubmit={handleCreate} className="bg-card rounded-xl p-5 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <select
+            value={form.bean_id ?? ""}
+            onChange={(e) => handleBeanSelectChange(e.target.value)}
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+          >
+            <option value="">No bean selected</option>
+            {beans.map((bean) => (
+              <option key={bean.id} value={bean.id}>
+                {bean.name}
+              </option>
+            ))}
+            <option value="__new__">+ New bean...</option>
+          </select>
 
-        <input
-          type="text"
-          placeholder="Grind size"
-          value={form.grind_size ?? ""}
-          onChange={(e) => setForm({ ...form, grind_size: e.target.value })}
-          className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-        />
+          <input
+            type="text"
+            placeholder="Grind size"
+            value={form.grind_size ?? ""}
+            onChange={(e) => setForm({ ...form, grind_size: e.target.value })}
+            className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+          />
+        </div>
 
-        <input
-          type="number"
-          step="0.1"
-          placeholder="Water temp (°C)"
-          value={form.water_temp_celsius ?? ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              water_temp_celsius: e.target.value
-                ? Number(e.target.value)
-                : undefined,
-            })
-          }
-          className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-        />
-        <input
-          type="number"
-          step="0.1"
-          placeholder="Coffee (g)"
-          value={form.coffee_grams ?? ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              coffee_grams: e.target.value ? Number(e.target.value) : undefined,
-            })
-          }
-          className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-        />
-        <input
-          type="number"
-          step="0.1"
-          placeholder="Water (g)"
-          value={form.water_grams ?? ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              water_grams: e.target.value ? Number(e.target.value) : undefined,
-            })
-          }
-          className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-        />
-        <input
-          type="number"
-          placeholder="Rating (1-10)"
-          min={1}
-          max={10}
-          value={form.rating ?? ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              rating: e.target.value ? Number(e.target.value) : undefined,
-            })
-          }
-          className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-        />
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <SliderInput
+            label="Water temp"
+            value={form.water_temp_celsius}
+            onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
+            min={80}
+            max={98}
+            step={0.5}
+            unit="°C"
+          />
+          <SliderInput
+            label="Coffee"
+            value={form.coffee_grams}
+            onChange={(v) => setForm({ ...form, coffee_grams: v })}
+            min={5}
+            max={40}
+            step={0.5}
+            unit="g"
+          />
+          <SliderInput
+            label="Water"
+            value={form.water_grams}
+            onChange={(v) => setForm({ ...form, water_grams: v })}
+            min={50}
+            max={600}
+            step={5}
+            unit="g"
+          />
+          <SliderInput
+            label="Rating"
+            value={form.rating}
+            onChange={(v) => setForm({ ...form, rating: v })}
+            min={1}
+            max={10}
+            step={1}
+            unit="/10"
+          />
+          <SliderInput
+            label="Bloom time"
+            value={form.bloom_time_seconds}
+            onChange={(v) => setForm({ ...form, bloom_time_seconds: v })}
+            min={0}
+            max={90}
+            step={5}
+            unit="s"
+          />
+          <SliderInput
+            label="Total time"
+            value={form.total_time_seconds}
+            onChange={(v) => setForm({ ...form, total_time_seconds: v })}
+            min={60}
+            max={420}
+            step={10}
+            unit="s"
+          />
+        </div>
 
-        <input
-          type="number"
-          placeholder="Bloom time (s)"
-          value={form.bloom_time_seconds ?? ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              bloom_time_seconds: e.target.value
-                ? Number(e.target.value)
-                : undefined,
-            })
-          }
-          className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-        />
-        <input
-          type="number"
-          placeholder="Total time (s)"
-          value={form.total_time_seconds ?? ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              total_time_seconds: e.target.value
-                ? Number(e.target.value)
-                : undefined,
-            })
-          }
-          className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-        />
         <input
           type="text"
           placeholder="Tasting notes"
@@ -381,6 +366,12 @@ export default function BrewsPage() {
           </tbody>
         </table>
       </div>
+      {showNewBeanModal && (
+        <NewBeanModal
+          onClose={() => setShowNewBeanModal(false)}
+          onCreated={handleBeanCreated}
+        />
+      )}
     </div>
   );
 }
