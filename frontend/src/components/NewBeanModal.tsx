@@ -50,7 +50,9 @@ export default function NewBeanModal({
         className="bg-card rounded-xl p-5 w-80"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-card-ink font-medium mb-3">New bean</h3>
+        <h3 className="text-card-ink font-medium mb-3 text-accent-roast">
+          New bean
+        </h3>
 
         {error && <p className="text-red-700 text-xs mb-2">{error}</p>}
 
@@ -61,21 +63,21 @@ export default function NewBeanModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoFocus
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-black border border-card-ink-muted/20"
           />
           <input
             type="text"
             placeholder="Origin"
             value={origin}
             onChange={(e) => setOrigin(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-black border border-card-ink-muted/20"
           />
           <input
             type="text"
             placeholder="Process (washed, natural, etc.)"
             value={process}
             onChange={(e) => setProcess(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-black border border-card-ink-muted/20"
           />
 
           <div className="flex gap-2 mt-2">

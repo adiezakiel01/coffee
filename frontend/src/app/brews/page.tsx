@@ -137,7 +137,7 @@ export default function BrewsPage() {
           <select
             value={form.bean_id ?? ""}
             onChange={(e) => handleBeanSelectChange(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20 text-accent"
           >
             <option value="">No bean selected</option>
             {beans.map((bean) => (
@@ -148,22 +148,27 @@ export default function BrewsPage() {
             <option value="__new__">+ New bean...</option>
           </select>
 
-          <input
-            type="text"
-            placeholder="Grind size"
+          <select
             value={form.grind_size ?? ""}
             onChange={(e) => setForm({ ...form, grind_size: e.target.value })}
-            className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-          />
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20 text-accent"
+          >
+            <option value="">Select Grind Size</option>
+            <option>coarse</option>
+            <option>medium-coarse</option>
+            <option>medium</option>
+            <option>medium-fine</option>
+            <option>fine</option>
+          </select>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="grid grid-cols-2 gap-4 mb-4 text-accent-roast">
           <ScrubInput
             label="Water temp"
             value={form.water_temp_celsius}
             onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
-            min={80}
-            max={98}
+            min={0}
+            max={100}
             step={0.5}
             unit="°C"
             sensitivity={3}
@@ -225,7 +230,7 @@ export default function BrewsPage() {
           placeholder="Tasting notes"
           value={form.tasting_notes ?? ""}
           onChange={(e) => setForm({ ...form, tasting_notes: e.target.value })}
-          className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+          className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-card-ink border text-black border-card-ink-muted/20"
         />
 
         <button
