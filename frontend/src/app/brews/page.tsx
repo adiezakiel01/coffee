@@ -225,20 +225,24 @@ export default function BrewsPage() {
           />
         </div>
 
-        <input
-          type="text"
-          placeholder="Tasting notes"
-          value={form.tasting_notes ?? ""}
-          onChange={(e) => setForm({ ...form, tasting_notes: e.target.value })}
-          className="col-span-2 rounded-lg px-3 py-2 text-sm bg-white text-card-ink border text-black border-card-ink-muted/20"
-        />
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Tasting notes"
+            value={form.tasting_notes ?? ""}
+            onChange={(e) =>
+              setForm({ ...form, tasting_notes: e.target.value })
+            }
+            className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink border text-black border-card-ink-muted/20"
+          />
+        </div>
 
         <button
           type="submit"
           disabled={submitting}
-          className="col-span-4 mt-1 bg-accent-strong text-ink rounded-lg py-2.5 text-sm font-medium disabled:opacity-50"
+          className="w-full bg-accent-strong text-ink rounded-lg py-2.5 text-sm font-medium disabled:opacity-50"
         >
-          {submitting ? "Logging..." : "Log brew"}
+          {submitting ? "Logging..." : "Log Brew"}
         </button>
       </form>
 
@@ -292,25 +296,25 @@ export default function BrewsPage() {
                   </td>
                   <td className="px-4 py-2.5 font-mono">
                     {isEditing ? (
-                      <input
-                        type="number"
+                      <ScrubInput
+                        label=""
                         min={1}
                         max={10}
-                        value={editForm.rating ?? ""}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            rating: Number(e.target.value),
-                          })
+                        step={1}
+                        unit="/10"
+                        sensitivity={8}
+                        value={editForm.rating ?? undefined}
+                        onChange={(v) =>
+                          setEditForm({ ...editForm, rating: v })
                         }
-                        className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20 w-14"
                       />
                     ) : (
-                      <span className="font-semibold text-accent-strong">
+                      <span className="text-accent-strong">
                         {brew.rating ? `${brew.rating}/10` : "—"}
                       </span>
                     )}
                   </td>
+
                   <td className="px-4 py-2.5 text-card-ink-muted text-xs max-w-[180px] truncate">
                     {isEditing ? (
                       <input
