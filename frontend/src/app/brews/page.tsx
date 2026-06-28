@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { beansApi, brewsApi } from "@/lib/api";
 import type { Bean, Brew, BrewCreate } from "@/types";
-import SliderInput from "@/components/SliderInput";
+import ScrubInput from "@/components/SliderInput";
 import NewBeanModal from "@/components/NewBeanModal";
 
 const emptyForm: BrewCreate = {
@@ -158,7 +158,7 @@ export default function BrewsPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <SliderInput
+          <ScrubInput
             label="Water temp"
             value={form.water_temp_celsius}
             onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
@@ -166,8 +166,9 @@ export default function BrewsPage() {
             max={98}
             step={0.5}
             unit="°C"
+            sensitivity={3}
           />
-          <SliderInput
+          <ScrubInput
             label="Coffee"
             value={form.coffee_grams}
             onChange={(v) => setForm({ ...form, coffee_grams: v })}
@@ -175,8 +176,9 @@ export default function BrewsPage() {
             max={40}
             step={0.5}
             unit="g"
+            sensitivity={4}
           />
-          <SliderInput
+          <ScrubInput
             label="Water"
             value={form.water_grams}
             onChange={(v) => setForm({ ...form, water_grams: v })}
@@ -184,8 +186,9 @@ export default function BrewsPage() {
             max={600}
             step={5}
             unit="g"
+            sensitivity={3}
           />
-          <SliderInput
+          <ScrubInput
             label="Rating"
             value={form.rating}
             onChange={(v) => setForm({ ...form, rating: v })}
@@ -193,8 +196,9 @@ export default function BrewsPage() {
             max={10}
             step={1}
             unit="/10"
+            sensitivity={8}
           />
-          <SliderInput
+          <ScrubInput
             label="Bloom time"
             value={form.bloom_time_seconds}
             onChange={(v) => setForm({ ...form, bloom_time_seconds: v })}
@@ -202,8 +206,9 @@ export default function BrewsPage() {
             max={90}
             step={5}
             unit="s"
+            sensitivity={3}
           />
-          <SliderInput
+          <ScrubInput
             label="Total time"
             value={form.total_time_seconds}
             onChange={(v) => setForm({ ...form, total_time_seconds: v })}
@@ -211,6 +216,7 @@ export default function BrewsPage() {
             max={420}
             step={10}
             unit="s"
+            sensitivity={3}
           />
         </div>
 
