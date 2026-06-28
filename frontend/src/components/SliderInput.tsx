@@ -1,6 +1,8 @@
 "use client";
 
-interface SliderInputProps {
+import { useRef, useState, useCallback } from "react";
+
+interface ScrubInputProps {
   label: string;
   value: number | undefined;
   onChange: (value: number | undefined) => void;
@@ -8,6 +10,7 @@ interface SliderInputProps {
   max: number;
   step: number;
   unit?: string;
+  sensitivity?: number;
 }
 
 export default function SliderInput({
@@ -18,38 +21,67 @@ export default function SliderInput({
   max,
   step,
   unit,
-}: SliderInputProps) {
-  const sliderValue = value ?? (min + max) / 2;
+  sensitivity = 4,
+}: ScrubInputProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartY = useRef(0);
+  const dragStartValue = useRef(0);
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      (e.target as HTMLElement).setPointerCapture(e.pointerId);
+
+      setIsDragging(true);
+      dragStartY.current = e.clientY;
+      dragStartValue.current = value ?? (min + max) / 2;
+    },
+    [value, min, max],
+  );
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      if (!isDragging) return;
+
+      const deltaY = dragStartY.current - e.clientY;
+      const deltaSteps = Math.round(deltaY / sensitivity);
+      const rawValue = dragStartValue.current + deltaSteps * step;
+
+      const clamped = Math.min(max, Math.max(min, rawValue));
+      const rounded = Math.round(clamped / step) * step;
+
+      onChange(rounded);
+    },
+    [isDragging, sensitivity, step, min, max, onChange],
+  );
+
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    setIsDragging(false);
+  }, []);
+
+  const displayValue = value !== undefined ? value : "-";
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-1">
-        <label className="text-xs text-card-ink-muted">{label}</label>
-        <span className="text-xs font-mono text-accent-strong">
-          {value !== undefined ? `${value}${unit ?? ""}` : "—"}
-        </span>
-      </div>
-      <div className="flex items-center gap-2">
-        <input
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={sliderValue}
-          onChange={(e) => onChange(Number(e.target.value))}
-          className="flex-1 accent-accent-strong"
-        />
-        <input
-          type="number"
-          min={min}
-          max={max}
-          step={step}
-          value={value ?? ""}
-          onChange={(e) =>
-            onChange(e.target.value ? Number(e.target.value) : undefined)
-          }
-          className="w-16 rounded-lg px-2 py-1 text-xs bg-white text-card-ink border border-card-ink-muted/20"
-        />
+      <label className="text-xs text-card-ink-muted block mb-1">{label}</label>
+      <div
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        className={`select-none cursor-ns-resize rounded-lg px-3 py-2 bg-white border transition-colors ${
+          isDragging
+            ? "border-accent-strong ring-1 ring-accent-strong/40"
+            : "border-card-ink-muted/20"
+        }`}
+        style={{ touchAction: "none" }}
+      >
+        <div className="flex items-baseline justify-between">
+          <span className="font-mono text-base text-card-ink">
+            {displayValue}
+            <span className="text-xs text-card-ink-muted">{unit}</span>
+          </span>
+          <span className="text-card-ink-muted text-xs">↕</span>
+        </div>
       </div>
     </div>
   );
