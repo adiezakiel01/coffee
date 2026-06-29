@@ -26,6 +26,9 @@ export default function BrewsPage() {
   const [form, setForm] = useState<BrewCreate>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [showNewBeanModal, setShowNewBeanModal] = useState(false);
+  const [sortByRating, setSortByRating] = useState<"none" | "asc" | "desc">(
+    "none",
+  );
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Brew>>({});
@@ -117,6 +120,24 @@ export default function BrewsPage() {
       setError(err instanceof Error ? err.message : "Failed to delete brew");
     }
   }
+
+  function toggleRatingSort() {
+    setSortByRating((prev) => {
+      if (prev === "none") return "desc";
+      if (prev === "desc") return "asc";
+      return "none";
+    });
+  }
+
+  const displayedBrews = (() => {
+    if (sortByRating === "none") return brews;
+    const sorted = [...brews].sort((a, b) => {
+      const aRating = a.rating ?? -1;
+      const bRating = b.rating ?? -1;
+      return sortByRating === "desc" ? bRating - aRating : aRating - bRating;
+    });
+    return sorted;
+  })();
 
   if (loading) return <p className="text-ink/60">Loading...</p>;
 
@@ -256,13 +277,23 @@ export default function BrewsPage() {
               <th className="px-4 py-2.5 font-bold">Temp</th>
               <th className="px-4 py-2.5 font-bold">Coffee/Water</th>
               <th className="px-4 py-2.5 font-bold">Grind</th>
-              <th className="px-4 py-2.5 font-bold">Rating</th>
+              <th
+                className="px-4 py-2.5 font-bold cursor-pointer select-none hover:text-card-ink"
+                onClick={toggleRatingSort}
+              >
+                Rating
+                <span className="ml-1 text-xs">
+                  {sortByRating === "desc" && "↓"}
+                  {sortByRating === "asc" && "↑"}
+                  {sortByRating === "none" && "↕"}
+                </span>
+              </th>
               <th className="px-4 py-2.5 font-bold">Notes</th>
               <th className="px-4 py-2.5 font-bold"></th>
             </tr>
           </thead>
           <tbody className="text-accent">
-            {brews.map((brew) => {
+            {displayedBrews.map((brew) => {
               const isEditing = editingId === brew.id;
               return (
                 <tr
