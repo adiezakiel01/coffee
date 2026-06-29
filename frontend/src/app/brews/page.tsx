@@ -288,7 +288,7 @@ export default function BrewsPage() {
                   {sortByRating === "none" && "↕"}
                 </span>
               </th>
-              <th className="px-4 py-2.5 font-bold">Notes</th>
+              <th className="px-4 py-2.5 font-bold">Tasting Notes</th>
               <th className="px-4 py-2.5 font-bold"></th>
             </tr>
           </thead>
