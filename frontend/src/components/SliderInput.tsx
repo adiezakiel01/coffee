@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 
-interface ScrubInputProps {
+interface WheelPickerProps {
   label: string;
   value: number | undefined;
   onChange: (value: number | undefined) => void;
@@ -10,8 +10,11 @@ interface ScrubInputProps {
   max: number;
   step: number;
   unit?: string;
-  sensitivity?: number;
 }
+
+const ITEM_HEIGHT = 32;
+const VISIBLE_ITEMS = 3;
+const CENTER_PADDING = Math.floor(VISIBLE_ITEMS / 2) * ITEM_HEIGHT;
 
 export default function SliderInput({
   label,
@@ -20,69 +23,53 @@ export default function SliderInput({
   min,
   max,
   step,
-  unit,
-  sensitivity = 4,
-}: ScrubInputProps) {
+  unit = "",
+}: WheelPickerProps) {
+  const values = useMemo(() => {
+    const result: number[] = [];
+    for (let v = min; v <= max + 1e-9; v = Math.round((v + step) * 100) / 100) {
+      result.push(Math.round(v * 100) / 100);
+    }
+    return result;
+  }, [min, max, step]);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const wheelRef = useRef<HTMLDivElement>(null);
+
+  const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
-  const dragStartValue = useRef(0);
+  const scrollStartOffset = useRef(0);
 
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-
-      setIsDragging(true);
-      dragStartY.current = e.clientY;
-      dragStartValue.current = value ?? (min + max) / 2;
-    },
-    [value, min, max],
+  const initialIndex =
+    value !== undefined ? values.indexOf(value) : Math.floor(values.length / 2);
+  const [currentIndex, setCurrentIndex] = useState(
+    initialIndex >= 0 ? initialIndex : 0,
   );
+  const [translateY, setTranslateY] = useState(-currentIndex * ITEM_HEIGHT);
 
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (!isDragging) return;
+  useEffect(() => {
+    if (!isOpen) return;
 
-      const deltaY = dragStartY.current - e.clientY;
-      const deltaSteps = Math.round(deltaY / sensitivity);
-      const rawValue = dragStartValue.current + deltaSteps * step;
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(e.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    }
 
-      const clamped = Math.min(max, Math.max(min, rawValue));
-      const rounded = Math.round(clamped / step) * step;
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [isOpen]);
 
-      onChange(rounded);
-    },
-    [isDragging, sensitivity, step, min, max, onChange],
-  );
-
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-    setIsDragging(false);
-  }, []);
-
-  const displayValue = value !== undefined ? value : "-";
-
-  return (
-    <div>
-      <label className="text-xs text-card-ink-muted block mb-1">{label}</label>
-      <div
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        className={`select-none cursor-ns-resize rounded-lg px-3 py-2 bg-white border transition-colors ${
-          isDragging
-            ? "border-accent-strong ring-1 ring-accent-strong/40"
-            : "border-card-ink-muted/20"
-        }`}
-        style={{ touchAction: "none" }}
-      >
-        <div className="flex items-baseline justify-between">
-          <span className="font-mono text-base text-card-ink">
-            {displayValue}
-            <span className="text-xs text-card-ink-muted">{unit}</span>
-          </span>
-          <span className="text-card-ink-muted text-xs">↕</span>
-        </div>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    if (value === undefined) return;
+    const idx = values.indexOf(value);
+    if (idx >= 0 && idx !== currentIndex) {
+      setCurrentIndex(idx);
+      setTranslateY(-idx * ITEM_HEIGHT);
+    }
+  }, [value, values, currentIndex]);
 }
