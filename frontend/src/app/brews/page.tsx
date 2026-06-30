@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { beansApi, brewsApi } from "@/lib/api";
 import type { Bean, Brew, BrewCreate } from "@/types";
-import ScrubInput from "@/components/SliderInput";
+import WheelPicker from "@/components/SliderInput";
 import NewBeanModal from "@/components/NewBeanModal";
 
 const emptyForm: BrewCreate = {
@@ -184,7 +184,7 @@ export default function BrewsPage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4 text-accent-roast">
-          <ScrubInput
+          <WheelPicker
             label="Water temp"
             value={form.water_temp_celsius}
             onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
@@ -192,9 +192,8 @@ export default function BrewsPage() {
             max={100}
             step={0.5}
             unit="°C"
-            sensitivity={3}
           />
-          <ScrubInput
+          <WheelPicker
             label="Coffee"
             value={form.coffee_grams}
             onChange={(v) => setForm({ ...form, coffee_grams: v })}
@@ -202,9 +201,8 @@ export default function BrewsPage() {
             max={40}
             step={0.5}
             unit="g"
-            sensitivity={4}
           />
-          <ScrubInput
+          <WheelPicker
             label="Water"
             value={form.water_grams}
             onChange={(v) => setForm({ ...form, water_grams: v })}
@@ -212,9 +210,8 @@ export default function BrewsPage() {
             max={600}
             step={5}
             unit="g"
-            sensitivity={3}
           />
-          <ScrubInput
+          <WheelPicker
             label="Rating"
             value={form.rating}
             onChange={(v) => setForm({ ...form, rating: v })}
@@ -222,9 +219,8 @@ export default function BrewsPage() {
             max={10}
             step={1}
             unit="/10"
-            sensitivity={8}
           />
-          <ScrubInput
+          <WheelPicker
             label="Bloom time"
             value={form.bloom_time_seconds}
             onChange={(v) => setForm({ ...form, bloom_time_seconds: v })}
@@ -232,9 +228,8 @@ export default function BrewsPage() {
             max={90}
             step={5}
             unit="s"
-            sensitivity={3}
           />
-          <ScrubInput
+          <WheelPicker
             label="Total time"
             value={form.total_time_seconds}
             onChange={(v) => setForm({ ...form, total_time_seconds: v })}
@@ -242,7 +237,6 @@ export default function BrewsPage() {
             max={420}
             step={10}
             unit="s"
-            sensitivity={3}
           />
         </div>
 
@@ -327,13 +321,12 @@ export default function BrewsPage() {
                   </td>
                   <td className="px-4 py-2.5 font-mono">
                     {isEditing ? (
-                      <ScrubInput
+                      <WheelPicker
                         label=""
                         min={1}
                         max={10}
                         step={1}
                         unit="/10"
-                        sensitivity={8}
                         value={editForm.rating ?? undefined}
                         onChange={(v) =>
                           setEditForm({ ...editForm, rating: v })
