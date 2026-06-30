@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { beansApi, brewsApi } from "@/lib/api";
+import { beansApi, brewsApi, brewParametersApi } from "@/lib/api";
 import type { Bean, Brew, BrewCreate } from "@/types";
 import WheelPicker from "@/components/SliderInput";
 import NewBeanModal from "@/components/NewBeanModal";
@@ -32,6 +32,10 @@ export default function BrewsPage() {
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Brew>>({});
+
+  const [brewType, setBrewType] = useState<"hot" | "iced">("hot");
+  const [filterType, setFilterType] = useState<"cone" | "flat">("cone");
+  const [iceGrams, setIceGrams] = useState<number | undefined>(undefined);
 
   async function loadData() {
     try {
@@ -83,8 +87,22 @@ export default function BrewsPage() {
         tasting_notes: form.tasting_notes || null,
       };
       const newBrew = await brewsApi.create(payload);
+
+      await brewParametersApi.create(newBrew.id, "brew_type", brewType);
+      await brewParametersApi.create(newBrew.id, "filter_type", filterType);
+      if (brewType === "iced" && iceGrams !== undefined) {
+        await brewParametersApi.create(
+          newBrew.id,
+          "ice_grams",
+          String(iceGrams),
+        );
+      }
+
       setBrews((prev) => [newBrew, ...prev]);
       setForm(emptyForm);
+      setBrewType("hot");
+      setFilterType("cone");
+      setIceGrams(undefined);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create brew");
     } finally {
@@ -154,6 +172,37 @@ export default function BrewsPage() {
 
       {/* Brew logger form */}
       <form onSubmit={handleCreate} className="bg-card rounded-xl p-5 mb-8">
+        {/* Brew type toggle */}
+        <div className="mb-4">
+          <label className="text-xs text-accent-roast text-card-ink-muted block mb-1.5">
+            Brew type
+          </label>
+          <div className="inline-flex rounded-lg bg-white border border-card-ink-muted/20 p-0.5 gap-0.5">
+            <button
+              type="button"
+              onClick={() => setBrewType("hot")}
+              className={`px-4 py-1.5 rounded-md text-sm transition-colors ${
+                brewType === "hot"
+                  ? "bg-accent-strong text-ink"
+                  : "text-card-ink-muted"
+              }`}
+            >
+              Hot
+            </button>
+            <button
+              type="button"
+              onClick={() => setBrewType("iced")}
+              className={`px-4 py-1.5 rounded-md text-sm transition-colors ${
+                brewType === "iced"
+                  ? "bg-accent-strong text-ink"
+                  : "text-card-ink-muted"
+              }`}
+            >
+              Iced
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-3 mb-4">
           <select
             value={form.bean_id ?? ""}
@@ -183,6 +232,36 @@ export default function BrewsPage() {
           </select>
         </div>
 
+        <div className="mb-4">
+          <label className="text-xs text-accent-roast text-card-ink-muted block mb-1.5">
+            Filter type
+          </label>
+          <div className="inline-flex rounded-lg bg-white border border-card-ink-muted/20 p-0.5 gap-0.5">
+            <button
+              type="button"
+              onClick={() => setFilterType("cone")}
+              className={`px-4 py-1.5 rounded-md text-sm transition-colors ${
+                filterType === "cone"
+                  ? "bg-accent-strong text-ink"
+                  : "text-card-ink-muted"
+              }`}
+            >
+              Cone
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterType("flat")}
+              className={`px-4 py-1.5 rounded-md text-sm transition-colors ${
+                filterType === "flat"
+                  ? "bg-accent-strong text-ink"
+                  : "text-card-ink-muted"
+              }`}
+            >
+              Flat-bottom
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 gap-4 mb-4 text-accent-roast">
           <WheelPicker
             label="Water temp"
@@ -202,15 +281,45 @@ export default function BrewsPage() {
             step={0.5}
             unit="g"
           />
-          <WheelPicker
-            label="Water"
-            value={form.water_grams}
-            onChange={(v) => setForm({ ...form, water_grams: v })}
-            min={50}
-            max={600}
-            step={5}
-            unit="g"
-          />
+
+          {/* Liquid: water + ice (when iced) grouped together */}
+          <div className="col-span-2">
+            <div
+              className={`grid gap-3 ${brewType === "iced" ? "grid-cols-2" : "grid-cols-1"}`}
+            >
+              <WheelPicker
+                label="Water"
+                value={form.water_grams}
+                onChange={(v) => setForm({ ...form, water_grams: v })}
+                min={50}
+                max={600}
+                step={5}
+                unit="g"
+              />
+              {brewType === "iced" && (
+                <WheelPicker
+                  label="Ice"
+                  value={iceGrams}
+                  onChange={setIceGrams}
+                  min={0}
+                  max={300}
+                  step={10}
+                  unit="g"
+                />
+              )}
+            </div>
+            {brewType === "iced" &&
+              form.water_grams !== undefined &&
+              iceGrams !== undefined && (
+                <p className="text-xs text-card-ink-muted mt-1.5">
+                  Total liquid:{" "}
+                  <span className="font-mono text-card-ink">
+                    {form.water_grams + iceGrams}g
+                  </span>
+                </p>
+              )}
+          </div>
+
           <WheelPicker
             label="Rating"
             value={form.rating}
