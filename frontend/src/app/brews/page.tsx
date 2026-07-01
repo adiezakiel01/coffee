@@ -6,6 +6,16 @@ import type { Bean, Brew, BrewCreate } from "@/types";
 import WheelPicker from "@/components/SliderInput";
 import NewBeanModal from "@/components/NewBeanModal";
 
+const GRIND_SIZES = [
+  "Exra-fine",
+  "Fine",
+  "Medium-fine",
+  "Medium",
+  "Medium-coarse",
+  "Coarse",
+  "Extra-coarse",
+];
+
 const emptyForm: BrewCreate = {
   bean_id: null,
   grind_size: "",
@@ -255,11 +265,11 @@ export default function BrewsPage() {
             className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20 text-accent"
           >
             <option value="">Select Grind Size</option>
-            <option>coarse</option>
-            <option>medium-coarse</option>
-            <option>medium</option>
-            <option>medium-fine</option>
-            <option>fine</option>
+            {GRIND_SIZES.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -465,16 +475,23 @@ export default function BrewsPage() {
                   {/* Grind + filter type */}
                   <td className="px-4 py-2.5 text-accent-roast">
                     {isEditing ? (
-                      <input
+                      <select
                         value={editForm.grind_size ?? ""}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            grind_size: e.target.value,
+                            grind_size: e.target.value || null,
                           })
                         }
-                        className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20 w-20"
-                      />
+                        className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20"
+                      >
+                        <option value="">—</option>
+                        {GRIND_SIZES.map((size) => (
+                          <option key={size} value={size}>
+                            {size}
+                          </option>
+                        ))}
+                      </select>
                     ) : (
                       <div>
                         <span>{brew.grind_size || "—"}</span>
