@@ -36,6 +36,9 @@ export default function BrewsPage() {
   const [brewType, setBrewType] = useState<"hot" | "iced">("hot");
   const [filterType, setFilterType] = useState<"cone" | "flat">("cone");
   const [iceGrams, setIceGrams] = useState<number | undefined>(undefined);
+  const [brewParameters, setBrewParameters] = useState<
+    Record<number, Record<string, string>>
+  >({});
 
   async function loadData() {
     try {
@@ -45,6 +48,17 @@ export default function BrewsPage() {
       ]);
       setBeans(beansData);
       setBrews(brewsData);
+
+      const paramResults = await Promise.all(
+        brewsData.map(async (brew) => {
+          const params = await brewParametersApi.list(brew.id);
+          const paramMap = Object.fromEntries(
+            params.map((p) => [p.key, p.value]),
+          );
+          return [brew.id, paramMap] as [number, Record<string, string>];
+        }),
+      );
+      setBrewParameters(Object.fromEntries(paramResults));
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load data");
     } finally {
@@ -98,6 +112,12 @@ export default function BrewsPage() {
         );
       }
 
+      const newParams = await brewParametersApi.list(newBrew.id);
+      const newParamMap = Object.fromEntries(
+        newParams.map((p) => [p.key, p.value]),
+      );
+      setBrewParameters((prev) => ({ ...prev, [newBrew.id]: newParamMap }));
+
       setBrews((prev) => [newBrew, ...prev]);
       setForm(emptyForm);
       setBrewType("hot");
@@ -108,6 +128,17 @@ export default function BrewsPage() {
     } finally {
       setSubmitting(false);
     }
+  }
+  function getParams(brewId: number): Record<string, string> {
+    return brewParameters[brewId] ?? {};
+  }
+
+  function totalWater(brew: Brew): string {
+    const params = getParams(brew.id);
+    const water = brew.water_grams ? parseFloat(String(brew.water_grams)) : 0;
+    const ice = params.ice_grams ? parseFloat(params.ice_grams) : 0;
+    const total = water + ice;
+    return total > 0 ? `${total}g` : "—";
   }
 
   function startEdit(brew: Brew) {
@@ -395,24 +426,44 @@ export default function BrewsPage() {
               <th className="px-4 py-2.5 font-bold"></th>
             </tr>
           </thead>
-          <tbody className="text-accent">
+          <tbody>
             {displayedBrews.map((brew) => {
               const isEditing = editingId === brew.id;
+              const params = getParams(brew.id);
+              const isIced = params.brew_type === "iced";
+              const filterType = params.filter_type;
+
               return (
                 <tr
                   key={brew.id}
                   className="border-b border-card-ink-muted/10 text-card-ink"
                 >
-                  <td className="px-4 py-2.5">{beanName(brew.bean_id)}</td>
-                  <td className="px-4 py-2.5 font-mono text-xs">
+                  {/* Bean name + iced badge */}
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-1.5 text-accent-roast">
+                      <span>{beanName(brew.bean_id)}</span>
+                      {isIced && (
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent-strong">
+                          ❄ iced
+                        </span>
+                      )}
+                    </div>
+                  </td>
+
+                  {/* Temp — unchanged */}
+                  <td className="px-4 py-2.5 font-mono text-xs text-accent-roast">
                     {brew.water_temp_celsius
                       ? `${brew.water_temp_celsius}°C`
                       : "—"}
                   </td>
-                  <td className="px-4 py-2.5 font-mono text-xs">
-                    {brew.coffee_grams ?? "—"}g / {brew.water_grams ?? "—"}g
+
+                  {/* Coffee / total water (water + ice for iced brews) */}
+                  <td className="px-4 py-2.5 font-mono text-xs text-accent-roast">
+                    {brew.coffee_grams ?? "—"}g / {totalWater(brew)}
                   </td>
-                  <td className="px-4 py-2.5">
+
+                  {/* Grind + filter type */}
+                  <td className="px-4 py-2.5 text-accent-roast">
                     {isEditing ? (
                       <input
                         value={editForm.grind_size ?? ""}
@@ -425,10 +476,19 @@ export default function BrewsPage() {
                         className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20 w-20"
                       />
                     ) : (
-                      brew.grind_size || "—"
+                      <div>
+                        <span>{brew.grind_size || "—"}</span>
+                        {filterType && (
+                          <span className="block text-xs text-card-ink-muted text-accent-strong mt-0.5">
+                            {filterType === "cone" ? "Cone" : "Flat-bottom"}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 font-mono">
+
+                  {/* Rating — unchanged */}
+                  <td className="px-4 py-2.5 font-mono text-accent">
                     {isEditing ? (
                       <WheelPicker
                         label=""
@@ -448,7 +508,8 @@ export default function BrewsPage() {
                     )}
                   </td>
 
-                  <td className="px-4 py-2.5 text-card-ink-muted text-xs max-w-[180px] truncate">
+                  {/* Notes — unchanged */}
+                  <td className="px-4 py-2.5 text-card-ink-muted text-xs text-accent-roast max-w-[180px] truncate">
                     {isEditing ? (
                       <input
                         value={editForm.tasting_notes ?? ""}
@@ -464,6 +525,8 @@ export default function BrewsPage() {
                       brew.tasting_notes || "—"
                     )}
                   </td>
+
+                  {/* Edit/delete — unchanged */}
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">
                     {isEditing ? (
                       <>
@@ -475,7 +538,7 @@ export default function BrewsPage() {
                         </button>
                         <button
                           onClick={() => setEditingId(null)}
-                          className="text-xs text-card-ink-muted"
+                          className="text-xs text-card-ink-muted text-accent-strong"
                         >
                           Cancel
                         </button>
