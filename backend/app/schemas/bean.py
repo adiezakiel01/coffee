@@ -6,6 +6,11 @@ class BeanBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     roaster: str | None = Field(None, max_length=255)
     origin: str | None = Field(None, max_length=255)
+    continent: str | None = Field(None, max_length=100)
+    region: str | None = Field(None, max_length=255)
+    farm: str | None = Field(None, max_length=255)
+    variety: str | None = Field(None, max_length=255)
+    altitude: str | None = Field(None, max_length=255)
     process: str | None = Field(None, max_length=255)
     notes: str | None = None
     roast_date: date | None = None
@@ -19,6 +24,11 @@ class BeanUpdate(BeanBase):
     name: str | None = Field(None, min_length=1, max_length=255)
     roaster: str | None = Field(None, max_length=255)
     origin: str | None = Field(None, max_length=255)
+    continent: str | None = Field(None, max_length=100)
+    region: str | None = Field(None, max_length=255)
+    farm: str | None = Field(None, max_length=255)
+    variety: str | None = Field(None, max_length=255)
+    altitude: str | None = Field(None, max_length=255)
     process: str | None = Field(None, max_length=255)
     notes: str | None = None
     roast_date: date | None = None
