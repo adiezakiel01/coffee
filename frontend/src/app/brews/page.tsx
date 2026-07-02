@@ -175,6 +175,11 @@ export default function BrewsPage() {
     try {
       await brewsApi.delete(brewId);
       setBrews((prev) => prev.filter((b) => b.id !== brewId));
+      setBrewParameters((prev) => {
+        const updated = { ...prev };
+        delete updated[brewId];
+        return updated;
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete brew");
     }
