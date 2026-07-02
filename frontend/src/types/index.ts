@@ -54,6 +54,9 @@ export interface Brew {
   total_time_seconds: number | null;
   rating: number | null;
   tasting_notes: string | null;
+  brew_type: string | null;
+  filter_type: string | null;
+  ice_grams: number | null;
   created_at: string;
 }
 
@@ -67,6 +70,9 @@ export interface BrewCreate {
   total_time_seconds?: number | null;
   rating?: number | null;
   tasting_notes?: string | null;
+  brew_type?: string | null;
+  filter_type?: string | null;
+  ice_grams?: number | null;
 }
 
 export interface BrewUpdate extends Partial<BrewCreate> {}
