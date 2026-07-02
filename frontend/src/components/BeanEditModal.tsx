@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { beansApi } from "@/lib/api";
 import type { Bean, BeanUpdate } from "@/types";
+import WheelPicker from "@/components/SliderInput";
 
 const CONTINENTS = [
   "Africa",
@@ -40,37 +41,6 @@ export default function BeanEditModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function field(
-    key: keyof BeanUpdate,
-    label: string,
-    type: string = "text",
-    span2 = false,
-  ) {
-    return (
-      <div className={span2 ? "col-span-2" : ""}>
-        <label className="text-xs text-card-ink-muted uppercase tracking-wide block mb-1">
-          {label}
-        </label>
-        <input
-          type={type}
-          value={(form[key] as string | number | null) ?? ""}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              [key]:
-                type === "number"
-                  ? e.target.value
-                    ? Number(e.target.value)
-                    : null
-                  : e.target.value || null,
-            })
-          }
-          className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
-        />
-      </div>
-    );
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name?.trim()) {
@@ -89,6 +59,34 @@ export default function BeanEditModal({
     }
   }
 
+  function textField(
+    key: keyof BeanUpdate,
+    label: string,
+    span2 = false,
+    required = false,
+  ) {
+    return (
+      <div className={span2 ? "col-span-2" : ""}>
+        <label className="text-xs text-card-ink-muted text-accent-roast uppercase tracking-wide block mb-1">
+          {label}
+          {required && <span className="text-red-500 ml-0.5">*</span>}
+        </label>
+        <input
+          type="text"
+          value={(form[key] as string | null) ?? ""}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              // name must never become null — keep as string even if empty
+              [key]: required ? e.target.value : e.target.value || null,
+            })
+          }
+          className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong text-card-ink border border-card-ink-muted/20"
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
@@ -98,20 +96,23 @@ export default function BeanEditModal({
         className="bg-card rounded-xl p-5 w-full max-w-md max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-base font-semibold text-accent-roast text-card-ink mb-4">
+        <h3 className="text-base font-semibold text-card-ink mb-4">
           Edit bean
         </h3>
 
         {error && <p className="text-red-700 text-xs mb-3">{error}</p>}
 
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 text-accent gap-3 mb-4">
-            {field("name", "Name", "text", true)}
-            {field("roaster", "Roaster")}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {/* Name — required, never null */}
+            {textField("name", "Name", true, true)}
 
-            {/* Continent — dropdown since options are fixed */}
+            {/* Roaster */}
+            {textField("roaster", "Roaster")}
+
+            {/* Continent — fixed dropdown */}
             <div>
-              <label className="text-xs text-card-ink-muted uppercase tracking-wide block mb-1">
+              <label className="text-xs text-card-ink-muted text-accent-roast uppercase tracking-wide block mb-1">
                 Continent
               </label>
               <select
@@ -119,7 +120,7 @@ export default function BeanEditModal({
                 onChange={(e) =>
                   setForm({ ...form, continent: e.target.value || null })
                 }
-                className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+                className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong text-card-ink border border-card-ink-muted/20"
               >
                 <option value="">—</option>
                 {CONTINENTS.map((c) => (
@@ -130,17 +131,44 @@ export default function BeanEditModal({
               </select>
             </div>
 
-            {field("origin", "Origin")}
-            {field("region", "Region")}
-            {field("farm", "Farm")}
-            {field("variety", "Variety")}
-            {field("altitude", "Altitude (masl)", "number")}
-            {field("process", "Process")}
-            {field("roast_date", "Roast date", "date")}
+            {textField("origin", "Origin")}
+            {textField("region", "Region")}
+            {textField("farm", "Farm")}
+            {textField("variety", "Variety")}
 
-            {/* Notes — textarea, full width */}
+            {/* Altitude — wheel picker */}
+            <div className="text-accent-roast uppercase">
+              <WheelPicker
+                label="Altitude (masl)"
+                value={form.altitude ?? undefined}
+                onChange={(v) => setForm({ ...form, altitude: v ?? null })}
+                min={0}
+                max={3000}
+                step={50}
+                unit=" masl"
+              />
+            </div>
+
+            {textField("process", "Process")}
+
+            {/* Roast date */}
+            <div>
+              <label className="text-xs text-card-ink-muted text-accent-roast uppercase tracking-wide block mb-1">
+                Roast date
+              </label>
+              <input
+                type="date"
+                value={form.roast_date ?? ""}
+                onChange={(e) =>
+                  setForm({ ...form, roast_date: e.target.value || null })
+                }
+                className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong text-card-ink border border-card-ink-muted/20"
+              />
+            </div>
+
+            {/* Notes — full width textarea */}
             <div className="col-span-2">
-              <label className="text-xs text-card-ink-muted uppercase tracking-wide block mb-1">
+              <label className="text-xs text-card-ink-muted text-accent-roast uppercase tracking-wide block mb-1">
                 Notes
               </label>
               <textarea
@@ -149,7 +177,7 @@ export default function BeanEditModal({
                   setForm({ ...form, notes: e.target.value || null })
                 }
                 rows={3}
-                className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20 resize-none"
+                className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong text-card-ink border border-card-ink-muted/20 resize-none"
               />
             </div>
           </div>

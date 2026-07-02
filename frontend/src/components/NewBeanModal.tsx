@@ -74,19 +74,19 @@ export default function NewBeanModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoFocus
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-black border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-strong border border-card-ink-muted/20"
           />
           <input
             type="text"
             placeholder="Origin"
             value={origin}
             onChange={(e) => setOrigin(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-black border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-strong border border-card-ink-muted/20"
           />
           <select
             value={continent}
             onChange={(e) => setContinent(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-strong border border-card-ink-muted/20"
           >
             <option value="">Continent</option>
             {CONTINENTS.map((c) => (
@@ -100,7 +100,7 @@ export default function NewBeanModal({
             placeholder="Process (washed, natural, etc.)"
             value={process}
             onChange={(e) => setProcess(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-black border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-strong border border-card-ink-muted/20"
           />
 
           <div className="flex gap-2 mt-2">
