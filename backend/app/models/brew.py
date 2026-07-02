@@ -39,6 +39,10 @@ class Brew(Base):
     )
     rating: Mapped[int | None] = mapped_column(SmallInteger)
 
+    brew_type: Mapped[str | None] = mapped_column(String(10))
+    filter_type: Mapped[str | None] = mapped_column(String(20))
+    ice_grams: Mapped[int | None] = mapped_column(Integer)
+
     bean: Mapped["Bean | None"] = relationship("Bean", back_populates="brews")
 
     parameters: Mapped[list["BrewParameter"]] = relationship(

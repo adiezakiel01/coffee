@@ -3,6 +3,11 @@ export interface Bean {
   name: string;
   roaster: string | null;
   origin: string | null;
+  continent: string | null;
+  region: string | null;
+  farm: string | null;
+  variety: string | null;
+  altitude: number | null;
   process: string | null;
   notes: string | null;
   roast_date: string | null;
@@ -13,6 +18,11 @@ export interface BeanCreate {
   name: string;
   roaster?: string | null;
   origin?: string | null;
+  continent?: string | null;
+  region?: string | null;
+  farm?: string | null;
+  variety?: string | null;
+  altitude?: number | null;
   process?: string | null;
   notes?: string | null;
   roast_date?: string | null;
@@ -22,6 +32,11 @@ export interface BeanUpdate {
   name?: string;
   roaster?: string | null;
   origin?: string | null;
+  continent?: string | null;
+  region?: string | null;
+  farm?: string | null;
+  variety?: string | null;
+  altitude?: number | null;
   process?: string | null;
   notes?: string | null;
   roast_date?: string | null;

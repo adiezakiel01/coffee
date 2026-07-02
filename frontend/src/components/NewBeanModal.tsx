@@ -4,6 +4,15 @@ import { useState } from "react";
 import { beansApi } from "@/lib/api";
 import type { Bean } from "@/types";
 
+const CONTINENTS = [
+  "Africa",
+  "Asia-Pacific",
+  "Central America",
+  "South America",
+  "North America",
+  "Middle East",
+];
+
 interface NewBeanModalProps {
   onClose: () => void;
   onCreated: (bean: Bean) => void;
@@ -15,6 +24,7 @@ export default function NewBeanModal({
 }: NewBeanModalProps) {
   const [name, setName] = useState("");
   const [origin, setOrigin] = useState("");
+  const [continent, setContinent] = useState("");
   const [process, setProcess] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +41,7 @@ export default function NewBeanModal({
       const bean = await beansApi.create({
         name: name.trim(),
         origin: origin || null,
+        continent: continent || null,
         process: process || null,
       });
       onCreated(bean);
@@ -72,6 +83,18 @@ export default function NewBeanModal({
             onChange={(e) => setOrigin(e.target.value)}
             className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-black border border-card-ink-muted/20"
           />
+          <select
+            value={continent}
+            onChange={(e) => setContinent(e.target.value)}
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+          >
+            <option value="">Continent</option>
+            {CONTINENTS.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
           <input
             type="text"
             placeholder="Process (washed, natural, etc.)"
