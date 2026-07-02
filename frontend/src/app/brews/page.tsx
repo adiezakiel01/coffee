@@ -7,7 +7,7 @@ import WheelPicker from "@/components/SliderInput";
 import NewBeanModal from "@/components/NewBeanModal";
 
 const GRIND_SIZES = [
-  "Exra-fine",
+  "Extra-fine",
   "Fine",
   "Medium-fine",
   "Medium",

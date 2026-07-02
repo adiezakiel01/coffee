@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
       <body className={`${inter.className} bg-base text-ink`}>
         <div className="flex min-h-screen">
           <Sidebar />
-          <main className="flex-1 p-8 overflow-y-auto">{children}</main>
+          <main className="flex-1 p-8 overflow-y-auto">
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </main>
         </div>
       </body>
     </html>
