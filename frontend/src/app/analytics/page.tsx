@@ -202,12 +202,12 @@ export default function AnalyticsPage() {
             {/* Chart header + toggle */}
             <div className="flex items-start justify-between mb-4">
               <div>
-                <p className="text-xs text-card-ink-muted uppercase tracking-wide">
+                <p className="text-sm text-card-ink-muted text-accent-roast uppercase font-bold tracking-wide">
                   {chartView === "ratio"
                     ? "Coffee:Water ratio vs Rating"
                     : "Water temp vs Rating"}
                 </p>
-                <p className="text-xs text-card-ink-muted/70 mt-0.5">
+                <p className="text-xs text-card-ink-muted/70 text-accent-strong mt-0.5">
                   {chartView === "ratio"
                     ? "Avg rating per ratio bucket · iced brews use total liquid"
                     : "Avg rating per temperature bucket"}
@@ -242,10 +242,10 @@ export default function AnalyticsPage() {
                 Not enough data yet for this view.
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={220}>
+              <ResponsiveContainer width="100%" height={420}>
                 <BarChart
                   data={chartData}
-                  margin={{ top: 8, right: 8, left: -16, bottom: 8 }}
+                  margin={{ top: 8, right: 8, left: -16, bottom: 16 }}
                 >
                   <CartesianGrid
                     strokeDasharray="3 3"
@@ -286,7 +286,7 @@ export default function AnalyticsPage() {
                     shape={(props: any) => (
                       <ColoredBar {...props} avg={props.avg ?? props.value} />
                     )}
-                    maxBarSize={60}
+                    maxBarSize={80}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -297,31 +297,39 @@ export default function AnalyticsPage() {
           <div className="flex flex-col gap-4">
             {/* Quick stats */}
             <div className="bg-card rounded-xl p-4">
-              <p className="text-xs text-card-ink-muted uppercase tracking-wide mb-3">
+              <p className="text-xs text-card-ink-muted text-accent-roast uppercase font-bold tracking-wide mb-3">
                 {selectedBean?.name}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs text-card-ink-muted mb-0.5">Brews</p>
-                  <p className="text-2xl font-semibold text-card-ink font-mono">
+                  <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
+                    Brews
+                  </p>
+                  <p className="text-2xl font-semibold text-card-ink text-accent-strong font-mono">
                     {stats.total}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-card-ink-muted mb-0.5">Avg</p>
+                  <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
+                    Avg
+                  </p>
                   <p className="text-2xl font-semibold text-accent-strong font-mono">
                     {stats.avg > 0 ? stats.avg : "—"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-card-ink-muted mb-0.5">Best</p>
+                  <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
+                    Best
+                  </p>
                   <p className="text-2xl font-semibold text-accent-strong font-mono">
                     {stats.best !== null ? `${stats.best}/10` : "—"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-card-ink-muted mb-0.5">Iced</p>
-                  <p className="text-2xl font-semibold text-card-ink font-mono">
+                  <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
+                    Iced
+                  </p>
+                  <p className="text-2xl font-semibold text-card-ink text-accent-strong font-mono">
                     {stats.iced}
                   </p>
                 </div>
@@ -330,14 +338,14 @@ export default function AnalyticsPage() {
 
             {/* Per-bean averages */}
             <div className="bg-card rounded-xl p-4 flex-1">
-              <p className="text-xs text-card-ink-muted uppercase tracking-wide mb-3">
+              <p className="text-xs text-card-ink-muted text-accent-roast uppercase font-bold tracking-wide mb-3">
                 Avg rating per bean
               </p>
               <div className="flex flex-col gap-2.5">
                 {perBeanAverages.map((bean) => (
                   <div key={bean.id}>
                     <div className="flex justify-between mb-1">
-                      <span className="text-xs text-card-ink truncate max-w-[120px]">
+                      <span className="text-xs text-card-ink text-accent-roast truncate max-w-[120px]">
                         {bean.name}
                       </span>
                       <span className="text-xs font-mono text-accent-strong font-semibold">
@@ -365,7 +373,7 @@ export default function AnalyticsPage() {
 
             {/* Suggestion */}
             <div className="bg-card rounded-xl p-4">
-              <p className="text-xs text-card-ink-muted uppercase tracking-wide mb-3">
+              <p className="text-xs text-card-ink-muted text-accent-roast uppercase font-semibold tracking-wide mb-3">
                 Next brew suggestion
               </p>
               {suggestion?.suggestion ? (
@@ -373,56 +381,56 @@ export default function AnalyticsPage() {
                   <div className="grid grid-cols-2 gap-2 mb-2">
                     {suggestion.suggestion.water_temp_celsius && (
                       <div>
-                        <p className="text-xs text-card-ink-muted mb-0.5">
+                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
                           Temp
                         </p>
-                        <p className="text-sm font-mono text-card-ink">
+                        <p className="text-sm font-mono text-card-ink text-accent-strong">
                           {suggestion.suggestion.water_temp_celsius}°C
                         </p>
                       </div>
                     )}
                     {suggestion.suggestion.coffee_grams && (
                       <div>
-                        <p className="text-xs text-card-ink-muted mb-0.5">
+                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
                           Coffee
                         </p>
-                        <p className="text-sm font-mono text-card-ink">
+                        <p className="text-sm font-mono text-card-ink text-accent-strong">
                           {suggestion.suggestion.coffee_grams}g
                         </p>
                       </div>
                     )}
                     {suggestion.suggestion.water_grams && (
                       <div>
-                        <p className="text-xs text-card-ink-muted mb-0.5">
+                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
                           Water
                         </p>
-                        <p className="text-sm font-mono text-card-ink">
+                        <p className="text-sm font-mono text-card-ink text-accent-strong">
                           {suggestion.suggestion.water_grams}g
                         </p>
                       </div>
                     )}
                     {suggestion.suggestion.bloom_time_seconds && (
                       <div>
-                        <p className="text-xs text-card-ink-muted mb-0.5">
+                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
                           Bloom
                         </p>
-                        <p className="text-sm font-mono text-card-ink">
+                        <p className="text-sm font-mono text-card-ink text-accent-strong">
                           {suggestion.suggestion.bloom_time_seconds}s
                         </p>
                       </div>
                     )}
                     {suggestion.suggestion.total_time_seconds && (
                       <div>
-                        <p className="text-xs text-card-ink-muted mb-0.5">
+                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
                           Total
                         </p>
-                        <p className="text-sm font-mono text-card-ink">
+                        <p className="text-sm font-mono text-card-ink text-accent-strong">
                           {suggestion.suggestion.total_time_seconds}s
                         </p>
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-card-ink-muted leading-relaxed">
+                  <p className="text-xs text-card-ink-muted text-accent-strong leading-relaxed">
                     {suggestion.message}
                   </p>
                 </>
