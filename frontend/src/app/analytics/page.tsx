@@ -405,7 +405,7 @@ export default function AnalyticsPage() {
                           Water
                         </p>
                         <p className="text-sm font-mono text-card-ink text-accent-strong">
-                          {suggestion.suggestion.water_grams}g
+                          {suggestion.suggestion.water_grams}ml
                         </p>
                       </div>
                     )}

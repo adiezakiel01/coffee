@@ -120,7 +120,7 @@ export default function BrewsPage() {
     const water = brew.water_grams ? parseFloat(String(brew.water_grams)) : 0;
     const ice = brew.ice_grams ?? 0;
     const total = water + ice;
-    return total > 0 ? `${total}g` : "—";
+    return total > 0 ? `${total}ml` : "—";
   }
 
   function startEdit(brew: Brew) {
@@ -304,7 +304,7 @@ export default function BrewsPage() {
                 min={50}
                 max={600}
                 step={5}
-                unit="g"
+                unit="ml"
               />
               {form.brew_type === "iced" && (
                 <WheelPicker
@@ -325,7 +325,7 @@ export default function BrewsPage() {
                 <p className="text-xs text-card-ink-muted mt-1.5">
                   Total liquid:{" "}
                   <span className="font-mono text-card-ink">
-                    {(form.water_grams ?? 0) + (form.ice_grams ?? 0)}g
+                    {(form.water_grams ?? 0) + (form.ice_grams ?? 0)}ml
                   </span>
                 </p>
               )}
