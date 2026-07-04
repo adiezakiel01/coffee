@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-base text-ink`}>
-        <div className="flex min-h-screen">
+        <div className="flex h-screen overflow-hidden">
           <Sidebar />
           <main className="flex-1 p-8 overflow-y-auto">
             <ErrorBoundary>{children}</ErrorBoundary>
