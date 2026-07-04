@@ -129,6 +129,15 @@ export default function BrewsPage() {
       rating: brew.rating,
       tasting_notes: brew.tasting_notes,
       grind_size: brew.grind_size,
+      water_temp_celsius: brew.water_temp_celsius
+        ? parseFloat(String(brew.water_temp_celsius))
+        : undefined,
+      coffee_grams: brew.coffee_grams
+        ? parseFloat(String(brew.coffee_grams))
+        : undefined,
+      water_grams: brew.water_grams
+        ? parseFloat(String(brew.water_grams))
+        : undefined,
     });
   }
 
@@ -431,12 +440,69 @@ export default function BrewsPage() {
                     </div>
                   </td>
                   <td className="px-4 py-2.5 font-mono text-xs">
-                    {brew.water_temp_celsius
-                      ? `${brew.water_temp_celsius}°C`
-                      : "—"}
+                    {isEditing ? (
+                      <WheelPicker
+                        label=""
+                        compact
+                        min={80}
+                        max={98}
+                        step={0.5}
+                        unit="°C"
+                        value={
+                          editForm.water_temp_celsius !== undefined
+                            ? parseFloat(String(editForm.water_temp_celsius))
+                            : undefined
+                        }
+                        onChange={(v) =>
+                          setEditForm({ ...editForm, water_temp_celsius: v })
+                        }
+                      />
+                    ) : brew.water_temp_celsius ? (
+                      `${brew.water_temp_celsius}°C`
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td className="px-4 py-2.5 font-mono text-xs">
-                    {brew.coffee_grams ?? "—"}g / {totalWater(brew)}
+                    {isEditing ? (
+                      <div className="flex items-center gap-1">
+                        <WheelPicker
+                          label=""
+                          compact
+                          min={5}
+                          max={40}
+                          step={0.5}
+                          unit="g"
+                          value={
+                            editForm.coffee_grams !== undefined
+                              ? parseFloat(String(editForm.coffee_grams))
+                              : undefined
+                          }
+                          onChange={(v) =>
+                            setEditForm({ ...editForm, coffee_grams: v })
+                          }
+                        />
+                        <span className="text-card-ink-muted">/</span>
+                        <WheelPicker
+                          label=""
+                          compact
+                          min={50}
+                          max={600}
+                          step={5}
+                          unit="g"
+                          value={
+                            editForm.water_grams !== undefined
+                              ? parseFloat(String(editForm.water_grams))
+                              : undefined
+                          }
+                          onChange={(v) =>
+                            setEditForm({ ...editForm, water_grams: v })
+                          }
+                        />
+                      </div>
+                    ) : (
+                      `${brew.coffee_grams ?? "—"}g / ${totalWater(brew)}`
+                    )}
                   </td>
                   <td className="px-4 py-2.5">
                     {isEditing ? (

@@ -10,13 +10,10 @@ interface WheelPickerProps {
   max: number;
   step: number;
   unit?: string;
+  compact?: boolean;
 }
 
-const ITEM_HEIGHT = 32;
-const VISIBLE_ITEMS = 3;
-const CENTER_PADDING = Math.floor(VISIBLE_ITEMS / 2) * ITEM_HEIGHT;
-
-export default function SliderInput({
+export default function WheelPicker({
   label,
   value,
   onChange,
@@ -24,7 +21,12 @@ export default function SliderInput({
   max,
   step,
   unit = "",
+  compact = false,
 }: WheelPickerProps) {
+  const ITEM_HEIGHT = compact ? 24 : 32;
+  const VISIBLE_ITEMS = 3;
+  const CENTER_PADDING = Math.floor(VISIBLE_ITEMS / 2) * ITEM_HEIGHT;
+
   const values = useMemo(() => {
     const result: number[] = [];
     for (let v = min; v <= max + 1e-9; v = Math.round((v + step) * 100) / 100) {
@@ -34,8 +36,6 @@ export default function SliderInput({
   }, [min, max, step]);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const wheelRef = useRef<HTMLDivElement>(null);
-
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartY = useRef(0);
@@ -50,7 +50,6 @@ export default function SliderInput({
 
   useEffect(() => {
     if (!isOpen) return;
-
     function handleClickOutside(e: MouseEvent) {
       if (
         wrapperRef.current &&
@@ -59,7 +58,6 @@ export default function SliderInput({
         setIsOpen(false);
       }
     }
-
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, [isOpen]);
@@ -71,7 +69,7 @@ export default function SliderInput({
       setCurrentIndex(idx);
       setTranslateY(-idx * ITEM_HEIGHT);
     }
-  }, [value, values, currentIndex]);
+  }, [value, values, currentIndex, ITEM_HEIGHT]);
 
   const togglePicker = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -102,41 +100,48 @@ export default function SliderInput({
     (e: React.PointerEvent) => {
       (e.target as HTMLElement).releasePointerCapture(e.pointerId);
       setIsDragging(false);
-
       const rawIndex = Math.round(-translateY / ITEM_HEIGHT);
       const clampedIndex = Math.min(values.length - 1, Math.max(0, rawIndex));
-
       setCurrentIndex(clampedIndex);
       setTranslateY(-clampedIndex * ITEM_HEIGHT);
       onChange(values[clampedIndex]);
     },
-    [translateY, values, onChange],
+    [translateY, values, onChange, ITEM_HEIGHT],
   );
 
   const windowHeight = ITEM_HEIGHT * VISIBLE_ITEMS;
   const displayValue = value !== undefined ? `${value}${unit}` : "—";
+  const pillHeight = compact ? "h-[26px]" : "h-9";
+  const pillPadding = compact ? "px-2" : "px-3";
+  const pillText = compact ? "text-xs" : "text-sm";
+  const itemText = compact ? "text-xs" : "text-sm";
 
   return (
     <div ref={wrapperRef} className="relative">
-      <label className="text-xs text-card-ink-muted block mb-1">{label}</label>
+      {label && (
+        <label className="text-xs text-card-ink-muted block mb-1">
+          {label}
+        </label>
+      )}
 
       <div
         onClick={togglePicker}
-        className="flex items-center justify-between h-9 px-3 rounded-lg bg-white border border-card-ink-muted/20 cursor-pointer"
+        className={`flex items-center justify-between ${pillHeight} ${pillPadding} rounded-lg bg-white border border-card-ink-muted/20 cursor-pointer`}
       >
-        <span className="font-mono text-sm text-card-ink">{displayValue}</span>
-        <span className="text-card-ink-muted text-xs">
+        <span className={`font-mono ${pillText} text-card-ink`}>
+          {displayValue}
+        </span>
+        <span className="text-card-ink-muted text-xs ml-1">
           {isOpen ? "▲" : "▼"}
         </span>
       </div>
 
       {isOpen && (
         <div
-          ref={wheelRef}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          className="absolute top-full left-0 right-0 mt-1 overflow-hidden rounded-lg bg-white border border-accent-strong/40 select-none cursor-grab active:cursor-grabbing z-20 shadow-lg"
+          className={`absolute top-full left-0 right-0 mt-1 overflow-hidden rounded-lg bg-white border border-accent-strong/40 select-none cursor-grab active:cursor-grabbing z-20 shadow-lg`}
           style={{ height: windowHeight, touchAction: "none" }}
         >
           <div
@@ -152,7 +157,7 @@ export default function SliderInput({
             {values.map((v, i) => (
               <div
                 key={v}
-                className="flex items-center justify-center font-mono text-sm"
+                className={`flex items-center justify-center font-mono ${itemText}`}
                 style={{
                   height: ITEM_HEIGHT,
                   color: i === currentIndex ? "#3d2a1f" : "#a89888",
