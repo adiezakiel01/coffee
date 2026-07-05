@@ -125,7 +125,7 @@ export default function BeansPage() {
               <p className="text-xs text-accent-strong uppercase tracking-widest mb-3">
                 {continent}
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 md:gap-3">
                 {continentBeans.map((bean) => {
                   const beanBrews = brewsForBean(bean.id);
                   const bestRating = beanBrews.reduce<number | null>(

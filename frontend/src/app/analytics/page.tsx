@@ -196,9 +196,9 @@ export default function AnalyticsPage() {
           No brews logged yet — log a brew to see insights.
         </p>
       ) : (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* LEFT: main chart — takes 2/3 width */}
-          <div className="col-span-2 bg-card rounded-xl p-5">
+          <div className="md:col-span-2 bg-card rounded-xl p-5">
             {/* Chart header + toggle */}
             <div className="flex items-start justify-between mb-4">
               <div>

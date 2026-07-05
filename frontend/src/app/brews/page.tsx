@@ -218,7 +218,7 @@ export default function BrewsPage() {
         </div>
 
         {/* Bean + grind */}
-        <div className="grid grid-cols-2 text-accent-strong gap-3 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 text-accent-strong gap-3 mb-4">
           <select
             value={form.bean_id ?? ""}
             onChange={(e) => handleBeanSelectChange(e.target.value)}
@@ -278,7 +278,7 @@ export default function BrewsPage() {
         </div>
 
         {/* Numeric fields */}
-        <div className="grid grid-cols-2 text-accent-roast font-semibold gap-4 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 text-accent-roast font-semibold gap-4 mb-4">
           <WheelPicker
             label="Water temp"
             value={form.water_temp_celsius}
@@ -641,7 +641,7 @@ export default function BrewsPage() {
               {/* Top row: bean name + iced badge + rating */}
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-medium text-card-ink text-sm">
+                  <span className="font-bold text-card-ink text-accent-roast text-sm">
                     {beanName(brew.bean_id)}
                   </span>
                   {isIced && (
@@ -660,43 +660,57 @@ export default function BrewsPage() {
               {/* Parameter grid */}
               <div className="grid grid-cols-3 gap-2 mb-2">
                 <div>
-                  <p className="text-xs text-card-ink-muted">Temp</p>
-                  <p className="text-xs font-mono text-card-ink">
+                  <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                    Temp
+                  </p>
+                  <p className="text-xs font-mono text-accent-strong text-card-ink">
                     {brew.water_temp_celsius
                       ? `${brew.water_temp_celsius}°C`
                       : "—"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-card-ink-muted">Coffee/Water</p>
-                  <p className="text-xs font-mono text-card-ink">
+                  <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                    Coffee/Water
+                  </p>
+                  <p className="text-xs font-mono text-accent-strong text-card-ink">
                     {brew.coffee_grams ?? "—"}g / {totalWater(brew)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-card-ink-muted">Grind</p>
-                  <p className="text-xs text-card-ink">
+                  <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                    Grind
+                  </p>
+                  <p className="text-xs text-accent-strong text-card-ink">
                     {brew.grind_size || "—"}
                   </p>
                 </div>
                 {filterLabel && (
                   <div>
-                    <p className="text-xs text-card-ink-muted">Filter</p>
-                    <p className="text-xs text-card-ink">{filterLabel}</p>
+                    <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                      Filter
+                    </p>
+                    <p className="text-xs text-accent-strong text-card-ink">
+                      {filterLabel}
+                    </p>
                   </div>
                 )}
                 {brew.bloom_time_seconds && (
                   <div>
-                    <p className="text-xs text-card-ink-muted">Bloom</p>
-                    <p className="text-xs font-mono text-card-ink">
+                    <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                      Bloom
+                    </p>
+                    <p className="text-xs text-accent-strong font-mono text-card-ink">
                       {brew.bloom_time_seconds}s
                     </p>
                   </div>
                 )}
                 {brew.total_time_seconds && (
                   <div>
-                    <p className="text-xs text-card-ink-muted">Total</p>
-                    <p className="text-xs font-mono text-card-ink">
+                    <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                      Total Brew Time
+                    </p>
+                    <p className="text-xs text-accent-strong font-mono text-card-ink">
                       {brew.total_time_seconds}s
                     </p>
                   </div>
@@ -705,7 +719,7 @@ export default function BrewsPage() {
 
               {/* Tasting notes */}
               {brew.tasting_notes && (
-                <p className="text-xs text-card-ink-muted italic mb-2">
+                <p className="text-xs text-accent-strong text-card-ink-muted italic mb-2">
                   "{brew.tasting_notes}"
                 </p>
               )}
