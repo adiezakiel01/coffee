@@ -620,6 +620,116 @@ export default function BrewsPage() {
         </table>
       </div>
 
+      {/* Mobile: cards */}
+      <div className="md:hidden flex flex-col gap-3">
+        {displayedBrews.length === 0 && (
+          <p className="text-center text-card-ink-muted text-sm py-6">
+            No brews logged yet — use the form above to log your first one.
+          </p>
+        )}
+        {displayedBrews.map((brew) => {
+          const isIced = brew.brew_type === "iced";
+          const filterLabel =
+            brew.filter_type === "cone"
+              ? "Cone"
+              : brew.filter_type === "flat"
+                ? "Flat-bottom"
+                : null;
+
+          return (
+            <div key={brew.id} className="bg-card rounded-xl p-4">
+              {/* Top row: bean name + iced badge + rating */}
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-medium text-card-ink text-sm">
+                    {beanName(brew.bean_id)}
+                  </span>
+                  {isIced && (
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent-strong">
+                      ❄ iced
+                    </span>
+                  )}
+                </div>
+                {brew.rating && (
+                  <span className="font-mono text-sm font-semibold text-accent-strong ml-2 flex-shrink-0">
+                    {brew.rating}/10
+                  </span>
+                )}
+              </div>
+
+              {/* Parameter grid */}
+              <div className="grid grid-cols-3 gap-2 mb-2">
+                <div>
+                  <p className="text-xs text-card-ink-muted">Temp</p>
+                  <p className="text-xs font-mono text-card-ink">
+                    {brew.water_temp_celsius
+                      ? `${brew.water_temp_celsius}°C`
+                      : "—"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-card-ink-muted">Coffee/Water</p>
+                  <p className="text-xs font-mono text-card-ink">
+                    {brew.coffee_grams ?? "—"}g / {totalWater(brew)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-card-ink-muted">Grind</p>
+                  <p className="text-xs text-card-ink">
+                    {brew.grind_size || "—"}
+                  </p>
+                </div>
+                {filterLabel && (
+                  <div>
+                    <p className="text-xs text-card-ink-muted">Filter</p>
+                    <p className="text-xs text-card-ink">{filterLabel}</p>
+                  </div>
+                )}
+                {brew.bloom_time_seconds && (
+                  <div>
+                    <p className="text-xs text-card-ink-muted">Bloom</p>
+                    <p className="text-xs font-mono text-card-ink">
+                      {brew.bloom_time_seconds}s
+                    </p>
+                  </div>
+                )}
+                {brew.total_time_seconds && (
+                  <div>
+                    <p className="text-xs text-card-ink-muted">Total</p>
+                    <p className="text-xs font-mono text-card-ink">
+                      {brew.total_time_seconds}s
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Tasting notes */}
+              {brew.tasting_notes && (
+                <p className="text-xs text-card-ink-muted italic mb-2">
+                  "{brew.tasting_notes}"
+                </p>
+              )}
+
+              {/* Edit/Delete */}
+              <div className="flex gap-2 pt-2 border-t border-card-ink-muted/10">
+                <button
+                  onClick={() => startEdit(brew)}
+                  className="text-xs text-accent-strong font-medium"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(brew.id)}
+                  className="text-xs text-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       {showNewBeanModal && (
         <NewBeanModal
           onClose={() => setShowNewBeanModal(false)}
