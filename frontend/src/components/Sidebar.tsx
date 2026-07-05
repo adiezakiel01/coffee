@@ -15,6 +15,7 @@ import {
 import { coffeeBean } from "@lucide/lab";
 
 const ICON_SIZE = 17;
+const MOBILE_BREAKPOINT = 768;
 
 const navItems = [
   {
@@ -53,13 +54,30 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored !== null) setCollapsed(stored === "true");
+    const checkMobile = () => {
+      const mobile = window.innerWidth < MOBILE_BREAKPOINT;
+      setIsMobile(mobile);
+
+      if (mobile) {
+        setCollapsed(true);
+        return;
+      }
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored !== null) setCollapsed(stored === "true");
+    };
+
+    checkMobile();
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   function toggleCollapsed() {
+    if (isMobile) {
+      setCollapsed((prev) => !prev);
+      return;
+    }
     setCollapsed((prev) => {
       const next = !prev;
       localStorage.setItem(STORAGE_KEY, String(next));
