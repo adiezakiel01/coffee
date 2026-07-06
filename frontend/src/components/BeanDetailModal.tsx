@@ -19,10 +19,10 @@ function Field({
   if (!value) return null;
   return (
     <div>
-      <p className="text-xs text-card-ink-muted uppercase tracking-wide mb-0.5">
+      <p className="text-xs font-semibold text-accent-roast text-card-ink-muted uppercase tracking-wide mb-0.5">
         {label}
       </p>
-      <p className="text-sm text-card-ink">{value}</p>
+      <p className="text-sm text-accent-strong text-card-ink">{value}</p>
     </div>
   );
 }
@@ -45,7 +45,7 @@ export default function BeanDetailModal({
         {/* Header */}
         <div className="flex items-start justify-between text-accent-roast mb-4">
           <div>
-            <h3 className="text-base font-semibold text-card-ink">
+            <h3 className="text-accent-roast font-bold text-card-ink">
               {bean.name}
             </h3>
             <p className="text-xs text-accent-strong mt-0.5">
@@ -61,7 +61,7 @@ export default function BeanDetailModal({
         </div>
 
         {/* Bean info grid */}
-        <div className="grid grid-cols-2 text-accent-roast font-semibold gap-3 mb-4">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <Field label="Origin" value={bean.origin} />
           <Field label="Region" value={bean.region} />
           <Field label="Farm" value={bean.farm} />

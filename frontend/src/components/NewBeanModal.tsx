@@ -74,19 +74,19 @@ export default function NewBeanModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             autoFocus
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-strong border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-roast border border-card-ink-muted/20"
           />
           <input
             type="text"
             placeholder="Origin"
             value={origin}
             onChange={(e) => setOrigin(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-strong border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-roast border border-card-ink-muted/20"
           />
           <select
             value={continent}
             onChange={(e) => setContinent(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-strong border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-roast border border-card-ink-muted/20"
           >
             <option value="">Continent</option>
             {CONTINENTS.map((c) => (
@@ -100,7 +100,7 @@ export default function NewBeanModal({
             placeholder="Process (washed, natural, etc.)"
             value={process}
             onChange={(e) => setProcess(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-strong border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-roast border border-card-ink-muted/20"
           />
 
           <div className="flex gap-2 mt-2">
@@ -114,7 +114,7 @@ export default function NewBeanModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-card-ink-muted/15 text-card-ink rounded-lg py-2 text-sm"
+              className="flex-1 bg-card-ink-muted/15 bg-red-500 text-ink text-card-ink rounded-lg py-2 text-sm"
             >
               Cancel
             </button>

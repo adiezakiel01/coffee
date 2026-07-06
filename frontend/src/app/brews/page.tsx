@@ -257,11 +257,11 @@ export default function BrewsPage() {
         </div>
 
         {/* Bean + grind */}
-        <div className="grid grid-cols-1 md:grid-cols-2 text-accent-strong gap-3 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
           <select
             value={form.bean_id ?? ""}
             onChange={(e) => handleBeanSelectChange(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
           >
             <option value="">No bean selected</option>
             {beans.map((bean) => (
@@ -277,7 +277,7 @@ export default function BrewsPage() {
             onChange={(e) =>
               setForm({ ...form, grind_size: e.target.value || null })
             }
-            className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink border border-card-ink-muted/20"
+            className="rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
           >
             <option value="">Select grind size</option>
             {GRIND_SIZES.map((size) => (
