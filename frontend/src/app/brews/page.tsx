@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { beansApi, brewsApi } from "@/lib/api";
 import type { Bean, Brew, BrewCreate } from "@/types";
 import WheelPicker from "@/components/SliderInput";
@@ -31,6 +31,9 @@ const emptyForm: BrewCreate = {
   ice_grams: null,
 };
 
+type SortOption = "newest" | "oldest" | "rating desc" | "rating asc";
+type BrewTypeFilter = "all" | "hot" | "iced";
+
 export default function BrewsPage() {
   const [beans, setBeans] = useState<Bean[]>([]);
   const [brews, setBrews] = useState<Brew[]>([]);
@@ -39,9 +42,10 @@ export default function BrewsPage() {
   const [form, setForm] = useState<BrewCreate>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [showNewBeanModal, setShowNewBeanModal] = useState(false);
-  const [sortByRating, setSortByRating] = useState<"none" | "asc" | "desc">(
-    "none",
-  );
+
+  const [beanFilter, setBeanFilter] = useState<string>("all");
+  const [brewTypeFilter, setBrewTypeFilter] = useState<BrewTypeFilter>("all");
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Brew>>({});
@@ -77,6 +81,65 @@ export default function BrewsPage() {
     return beans.find((b) => b.id === beanId)?.name ?? "unknown bean";
   }
 
+  function formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+
+  function computeRatio(brew: Brew): string {
+    if (!brew.coffee_grams) return "-";
+    const coffee = parseFloat(String(brew.coffee_grams));
+    const water = parseFloat(String(brew.water_grams ?? 0));
+    const ice = brew.ice_grams ?? 0;
+    const total = water + ice;
+    if (total === 0) return "-";
+    return `1:${(total / coffee).toFixed(1)}`;
+  }
+
+  function totalWater(brew: Brew): string {
+    const water = brew.water_grams ? parseFloat(String(brew.water_grams)) : 0;
+    const ice = brew.ice_grams ?? 0;
+    const total = water + ice;
+    return total > 0 ? `${total}ml` : "—";
+  }
+
+  const displayedBrews = useMemo(() => {
+    let filtered = [...brews];
+
+    if (beanFilter !== "all") {
+      filtered = filtered.filter((b) => String(b.bean_id) === beanFilter);
+    }
+
+    if (brewTypeFilter !== "all") {
+      filtered = filtered.filter(
+        (b) => (b.brew_type ?? "hot") === brewTypeFilter,
+      );
+    }
+
+    filtered.sort((a, b) => {
+      switch (sortOption) {
+        case "newest":
+          return (
+            new Date(b.brewed_at).getTime() - new Date(a.brewed_at).getTime()
+          );
+        case "oldest":
+          return (
+            new Date(a.brewed_at).getTime() - new Date(b.brewed_at).getTime()
+          );
+        case "rating desc":
+          return (b.rating ?? -1) - (a.rating ?? -1);
+        case "rating asc":
+          return (a.rating ?? 11) - (b.rating ?? 11);
+        default:
+          return 0;
+      }
+    });
+    return filtered;
+  }, [brews, beanFilter, brewTypeFilter, sortOption]);
+
   function handleBeanSelectChange(value: string) {
     if (value === "__new__") {
       setShowNewBeanModal(true);
@@ -101,7 +164,6 @@ export default function BrewsPage() {
         bean_id: form.bean_id || null,
         grind_size: form.grind_size || null,
         tasting_notes: form.tasting_notes || null,
-        // brew_type, filter_type, ice_grams now go directly on the brew
         brew_type: form.brew_type,
         filter_type: form.filter_type,
         ice_grams: form.brew_type === "iced" ? form.ice_grams : null,
@@ -114,13 +176,6 @@ export default function BrewsPage() {
     } finally {
       setSubmitting(false);
     }
-  }
-
-  function totalWater(brew: Brew): string {
-    const water = brew.water_grams ? parseFloat(String(brew.water_grams)) : 0;
-    const ice = brew.ice_grams ?? 0;
-    const total = water + ice;
-    return total > 0 ? `${total}ml` : "—";
   }
 
   function startEdit(brew: Brew) {
@@ -160,22 +215,6 @@ export default function BrewsPage() {
       setError(err instanceof Error ? err.message : "Failed to delete brew");
     }
   }
-
-  function toggleRatingSort() {
-    setSortByRating((prev) =>
-      prev === "none" ? "desc" : prev === "desc" ? "asc" : "none",
-    );
-  }
-
-  const displayedBrews = (() => {
-    if (sortByRating === "none") return brews;
-    const sorted = [...brews].sort((a, b) => {
-      const aRating = a.rating ?? -1;
-      const bRating = b.rating ?? -1;
-      return sortByRating === "desc" ? bRating - aRating : aRating - bRating;
-    });
-    return sorted;
-  })();
 
   if (loading) return <p className="text-ink/60">Loading...</p>;
 
@@ -386,248 +425,74 @@ export default function BrewsPage() {
         </button>
       </form>
 
-      {/* History table */}
-      <h2 className="text-sm font-medium text-ink/70 mb-3">History</h2>
-      <div className="bg-card rounded-xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-card-ink-muted/15 text-accent-roast text-card-ink-muted text-left">
-              <th className="px-4 py-2.5 font-bold">Bean</th>
-              <th className="px-4 py-2.5 font-bold">Temp</th>
-              <th className="px-4 py-2.5 font-bold">Coffee/Water</th>
-              <th className="px-4 py-2.5 font-bold">Grind</th>
-              <th
-                className="px-4 py-2.5 font-bold cursor-pointer select-none hover:text-card-ink"
-                onClick={toggleRatingSort}
-              >
-                Rating
-                <span className="ml-1 text-xs">
-                  {sortByRating === "desc"
-                    ? "↓"
-                    : sortByRating === "asc"
-                      ? "↑"
-                      : "↕"}
-                </span>
-              </th>
-              <th className="px-4 py-2.5 font-bold">Notes</th>
-              <th className="px-4 py-2.5 font-normal"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayedBrews.map((brew) => {
-              const isEditing = editingId === brew.id;
-              const isIced = brew.brew_type === "iced";
-              const filterLabel =
-                brew.filter_type === "cone"
-                  ? "Cone"
-                  : brew.filter_type === "flat"
-                    ? "Flat-bottom"
-                    : null;
-
-              return (
-                <tr
-                  key={brew.id}
-                  className="border-b border-card-ink-muted/10 text-accent-roast text-card-ink"
-                >
-                  <td className="px-4 py-2.5">
-                    <div className="flex items-center gap-1.5">
-                      <span>{beanName(brew.bean_id)}</span>
-                      {isIced && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent-strong">
-                          ❄ iced
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-xs">
-                    {isEditing ? (
-                      <WheelPicker
-                        label=""
-                        compact
-                        min={80}
-                        max={98}
-                        step={0.5}
-                        unit="°C"
-                        value={
-                          editForm.water_temp_celsius !== undefined
-                            ? parseFloat(String(editForm.water_temp_celsius))
-                            : undefined
-                        }
-                        onChange={(v) =>
-                          setEditForm({ ...editForm, water_temp_celsius: v })
-                        }
-                      />
-                    ) : brew.water_temp_celsius ? (
-                      `${brew.water_temp_celsius}°C`
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-xs">
-                    {isEditing ? (
-                      <div className="flex items-center gap-1">
-                        <WheelPicker
-                          label=""
-                          compact
-                          min={5}
-                          max={40}
-                          step={0.5}
-                          unit="g"
-                          value={
-                            editForm.coffee_grams !== undefined
-                              ? parseFloat(String(editForm.coffee_grams))
-                              : undefined
-                          }
-                          onChange={(v) =>
-                            setEditForm({ ...editForm, coffee_grams: v })
-                          }
-                        />
-                        <span className="text-card-ink-muted">/</span>
-                        <WheelPicker
-                          label=""
-                          compact
-                          min={50}
-                          max={600}
-                          step={5}
-                          unit="g"
-                          value={
-                            editForm.water_grams !== undefined
-                              ? parseFloat(String(editForm.water_grams))
-                              : undefined
-                          }
-                          onChange={(v) =>
-                            setEditForm({ ...editForm, water_grams: v })
-                          }
-                        />
-                      </div>
-                    ) : (
-                      `${brew.coffee_grams ?? "—"}g / ${totalWater(brew)}`
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5">
-                    {isEditing ? (
-                      <select
-                        value={editForm.grind_size ?? ""}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            grind_size: e.target.value || null,
-                          })
-                        }
-                        className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20"
-                      >
-                        <option value="">—</option>
-                        {GRIND_SIZES.map((size) => (
-                          <option key={size} value={size}>
-                            {size}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <div>
-                        <span>{brew.grind_size || "—"}</span>
-                        {filterLabel && (
-                          <span className="block text-xs text-accent-strong text-card-ink-muted mt-0.5">
-                            {filterLabel}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5 font-mono">
-                    {isEditing ? (
-                      <WheelPicker
-                        label=""
-                        min={1}
-                        max={10}
-                        step={1}
-                        unit="/10"
-                        value={editForm.rating ?? undefined}
-                        onChange={(v) =>
-                          setEditForm({ ...editForm, rating: v })
-                        }
-                      />
-                    ) : (
-                      <span className="text-accent-strong">
-                        {brew.rating ? `${brew.rating}/10` : "—"}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5 text-card-ink-muted text-xs max-w-[180px] truncate">
-                    {isEditing ? (
-                      <input
-                        value={editForm.tasting_notes ?? ""}
-                        onChange={(e) =>
-                          setEditForm({
-                            ...editForm,
-                            tasting_notes: e.target.value,
-                          })
-                        }
-                        className="rounded px-2 py-1 text-xs bg-white border border-card-ink-muted/20 w-full"
-                      />
-                    ) : (
-                      brew.tasting_notes || "—"
-                    )}
-                  </td>
-                  <td className="px-4 py-2.5 text-right whitespace-nowrap">
-                    {isEditing ? (
-                      <>
-                        <button
-                          onClick={() => saveEdit(brew.id)}
-                          className="text-xs text-green-700 font-medium mr-2"
-                        >
-                          Save
-                        </button>
-                        <button
-                          onClick={() => setEditingId(null)}
-                          className="text-xs text-card-ink-muted"
-                        >
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => startEdit(brew)}
-                          className="text-xs text-accent-strong font-medium mr-2"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(brew.id)}
-                          className="text-xs text-red-700"
-                        >
-                          Delete
-                        </button>
-                      </>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
-            {brews.length === 0 && (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="px-4 py-6 text-center text-card-ink-muted text-sm"
-                >
-                  No brews logged yet — use the form above to log your first
-                  one.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      {/* History header */}
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-medium text-ink/70">
+          History
+          <span className="ml-2 text-ink/40 font-normal">
+            {displayedBrews.length} brew{displayedBrews.length !== 1 ? "s" : ""}
+          </span>
+        </h2>
       </div>
 
-      {/* Mobile: cards */}
-      <div className="md:hidden flex flex-col gap-3">
+      {/* Filter + sort bar */}
+      <div className="bg-card rounded-xl border border-card-ink-muted/10 p-3 mb-4 flex flex-wrap gap-2 items-center">
+        {/* Bean filter */}
+        <select
+          value={beanFilter}
+          onChange={(e) => setBeanFilter(e.target.value)}
+          className="rounded-lg px-2.5 py-1.5 text-xs bg-white text-accent text-card-ink border border-card-ink-muted/20 flex-1 min-w-[120px]"
+        >
+          <option value="all">All beans</option>
+          {beans.map((bean) => (
+            <option key={bean.id} value={String(bean.id)}>
+              {bean.name}
+            </option>
+          ))}
+        </select>
+
+        {/* Brew type filter */}
+        <div className="inline-flex rounded-lg bg-white border border-card-ink-muted/20 p-0.5 gap-0.5">
+          {(["all", "hot", "iced"] as const).map((type) => (
+            <button
+              key={type}
+              onClick={() => setBrewTypeFilter(type)}
+              className={`px-3 py-1 rounded-md text-xs capitalize transition-colors ${
+                brewTypeFilter === type
+                  ? "bg-accent-strong text-ink"
+                  : "text-card-ink-muted"
+              }`}
+            >
+              {type === "all" ? "All" : type === "hot" ? "Hot" : "❄ Iced"}
+            </button>
+          ))}
+        </div>
+
+        {/* Sort */}
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value as SortOption)}
+          className="rounded-lg px-2.5 py-1.5 text-xs bg-white text-accent text-card-ink border border-card-ink-muted/20 flex-1 min-w-[120px]"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="rating_desc">Rating ↓</option>
+          <option value="rating_asc">Rating ↑</option>
+        </select>
+      </div>
+
+      {/* Brew cards */}
+      <div className="flex flex-col gap-3">
         {displayedBrews.length === 0 && (
-          <p className="text-center text-card-ink-muted text-sm py-6">
-            No brews logged yet — use the form above to log your first one.
+          <p className="text-center text-card-ink-muted text-sm py-8">
+            {brews.length === 0
+              ? "No brews logged yet — use the form above to log your first one."
+              : "No brews match the current filters."}
           </p>
         )}
+
         {displayedBrews.map((brew) => {
+          const isEditing = editingId === brew.id;
           const isIced = brew.brew_type === "iced";
           const filterLabel =
             brew.filter_type === "cone"
@@ -638,10 +503,10 @@ export default function BrewsPage() {
 
           return (
             <div key={brew.id} className="bg-card rounded-xl p-4">
-              {/* Top row: bean name + iced badge + rating */}
-              <div className="flex items-start justify-between mb-2">
+              {/* Top row: bean + badges + rating */}
+              <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-bold text-card-ink text-accent-roast text-sm">
+                  <span className="font-medium text-accent-roast text-card-ink">
                     {beanName(brew.bean_id)}
                   </span>
                   {isIced && (
@@ -649,95 +514,226 @@ export default function BrewsPage() {
                       ❄ iced
                     </span>
                   )}
+                  {filterLabel && (
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-card-ink-muted/10 text-accent-strong text-card-ink-muted">
+                      {filterLabel}
+                    </span>
+                  )}
                 </div>
                 {brew.rating && (
-                  <span className="font-mono text-sm font-semibold text-accent-strong ml-2 flex-shrink-0">
+                  <span className="font-mono font-semibold text-accent-strong ml-2 flex-shrink-0">
                     {brew.rating}/10
                   </span>
                 )}
               </div>
 
-              {/* Parameter grid */}
-              <div className="grid grid-cols-3 gap-2 mb-2">
-                <div>
-                  <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
-                    Temp
-                  </p>
-                  <p className="text-xs font-mono text-accent-strong text-card-ink">
-                    {brew.water_temp_celsius
-                      ? `${brew.water_temp_celsius}°C`
-                      : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
-                    Coffee/Water
-                  </p>
-                  <p className="text-xs font-mono text-accent-strong text-card-ink">
-                    {brew.coffee_grams ?? "—"}g / {totalWater(brew)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
-                    Grind
-                  </p>
-                  <p className="text-xs text-accent-strong text-card-ink">
-                    {brew.grind_size || "—"}
-                  </p>
-                </div>
-                {filterLabel && (
-                  <div>
-                    <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
-                      Filter
-                    </p>
-                    <p className="text-xs text-accent-strong text-card-ink">
-                      {filterLabel}
-                    </p>
+              {/* Parameters grid */}
+              {isEditing ? (
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <WheelPicker
+                    label="Water temp"
+                    compact
+                    min={80}
+                    max={98}
+                    step={0.5}
+                    unit="°C"
+                    value={
+                      editForm.water_temp_celsius !== undefined
+                        ? parseFloat(String(editForm.water_temp_celsius))
+                        : undefined
+                    }
+                    onChange={(v) =>
+                      setEditForm({ ...editForm, water_temp_celsius: v })
+                    }
+                  />
+                  <div className="flex items-end gap-1">
+                    <WheelPicker
+                      label="Coffee"
+                      compact
+                      min={5}
+                      max={40}
+                      step={0.5}
+                      unit="g"
+                      value={
+                        editForm.coffee_grams !== undefined
+                          ? parseFloat(String(editForm.coffee_grams))
+                          : undefined
+                      }
+                      onChange={(v) =>
+                        setEditForm({ ...editForm, coffee_grams: v })
+                      }
+                    />
+                    <span className="text-card-ink-muted text-sm mb-1">/</span>
+                    <WheelPicker
+                      label="Water"
+                      compact
+                      min={50}
+                      max={600}
+                      step={5}
+                      unit="g"
+                      value={
+                        editForm.water_grams !== undefined
+                          ? parseFloat(String(editForm.water_grams))
+                          : undefined
+                      }
+                      onChange={(v) =>
+                        setEditForm({ ...editForm, water_grams: v })
+                      }
+                    />
                   </div>
-                )}
-                {brew.bloom_time_seconds && (
                   <div>
-                    <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
-                      Bloom
-                    </p>
-                    <p className="text-xs text-accent-strong font-mono text-card-ink">
-                      {brew.bloom_time_seconds}s
-                    </p>
+                    <label className="text-xs text-card-ink-muted block mb-1">
+                      Grind
+                    </label>
+                    <select
+                      value={editForm.grind_size ?? ""}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          grind_size: e.target.value || null,
+                        })
+                      }
+                      className="w-full rounded-lg px-2 py-1.5 text-xs bg-white border border-card-ink-muted/20 text-card-ink"
+                    >
+                      <option value="">—</option>
+                      {GRIND_SIZES.map((size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      ))}
+                    </select>
                   </div>
-                )}
-                {brew.total_time_seconds && (
-                  <div>
-                    <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
-                      Total Brew Time
-                    </p>
-                    <p className="text-xs text-accent-strong font-mono text-card-ink">
-                      {brew.total_time_seconds}s
-                    </p>
+                  <WheelPicker
+                    label="Rating"
+                    compact
+                    min={1}
+                    max={10}
+                    step={1}
+                    unit="/10"
+                    value={editForm.rating ?? undefined}
+                    onChange={(v) => setEditForm({ ...editForm, rating: v })}
+                  />
+                  <div className="col-span-2">
+                    <label className="text-xs text-card-ink-muted block mb-1">
+                      Tasting notes
+                    </label>
+                    <input
+                      value={editForm.tasting_notes ?? ""}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          tasting_notes: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-lg px-2 py-1.5 text-xs bg-white border border-card-ink-muted/20 text-card-ink"
+                    />
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    <div>
+                      <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                        Temp
+                      </p>
+                      <p className="text-xs font-mono text-accent-strong text-card-ink">
+                        {brew.water_temp_celsius
+                          ? `${brew.water_temp_celsius}°C`
+                          : "—"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                        Coffee/Water
+                      </p>
+                      <p className="text-xs font-mono text-accent-strong text-card-ink">
+                        {brew.coffee_grams ?? "—"}g / {totalWater(brew)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                        Ratio
+                      </p>
+                      <p className="text-xs font-mono text-accent-strong text-card-ink">
+                        {computeRatio(brew)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                        Grind
+                      </p>
+                      <p className="text-xs text-accent-strong text-card-ink">
+                        {brew.grind_size || "—"}
+                      </p>
+                    </div>
+                    {brew.bloom_time_seconds && (
+                      <div>
+                        <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                          Bloom
+                        </p>
+                        <p className="text-xs font-mono text-accent-strong text-card-ink">
+                          {brew.bloom_time_seconds}s
+                        </p>
+                      </div>
+                    )}
+                    {brew.total_time_seconds && (
+                      <div>
+                        <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
+                          Total time
+                        </p>
+                        <p className="text-xs font-mono text-accent-strong text-card-ink">
+                          {brew.total_time_seconds}s
+                        </p>
+                      </div>
+                    )}
+                  </div>
 
-              {/* Tasting notes */}
-              {brew.tasting_notes && (
-                <p className="text-xs text-accent-strong text-card-ink-muted italic mb-2">
-                  "{brew.tasting_notes}"
-                </p>
+                  {brew.tasting_notes && (
+                    <p className="text-xs text-accent-roast text-card-ink-muted italic mb-2">
+                      "{brew.tasting_notes}"
+                    </p>
+                  )}
+                </>
               )}
 
-              {/* Edit/Delete */}
-              <div className="flex gap-2 pt-2 border-t border-card-ink-muted/10">
-                <button
-                  onClick={() => startEdit(brew)}
-                  className="text-xs text-accent-strong font-medium"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(brew.id)}
-                  className="text-xs text-red-700"
-                >
-                  Delete
-                </button>
+              {/* Footer: date + actions */}
+              <div className="flex items-center justify-between pt-2 border-t border-card-ink-muted/10">
+                <span className="text-xs text-accent text-card-ink-muted font-mono">
+                  {formatDate(brew.brewed_at)}
+                </span>
+                <div className="flex gap-3">
+                  {isEditing ? (
+                    <>
+                      <button
+                        onClick={() => saveEdit(brew.id)}
+                        className="text-xs text-green-700 font-medium"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingId(null)}
+                        className="text-xs text-card-ink-muted"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => startEdit(brew)}
+                        className="text-xs text-accent-strong font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(brew.id)}
+                        className="text-xs text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           );
