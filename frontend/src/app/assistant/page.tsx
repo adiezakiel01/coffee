@@ -164,18 +164,18 @@ export default function AssistantPage() {
             {/* Typing indicator */}
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-card rounded-2xl rounded-bl-sm px-4 py-3">
-                  <div className="flex gap-1 items-center">
+                <div className="bg-card rounded-2xl rounded-bl-sm px-4 py-3.5">
+                  <div className="flex gap-1 items-center h-4">
                     <span
-                      className="w-1.5 h-1.5 bg-card-ink-muted rounded-full animate-bounce"
+                      className="w-2 h-2 bg-card-muted rounded-full animate-bounce"
                       style={{ animationDelay: "0ms" }}
                     />
                     <span
-                      className="w-1.5 h-1.5 bg-card-ink-muted rounded-full animate-bounce"
+                      className="w-2 h-2 bg-card-muted rounded-full animate-bounce"
                       style={{ animationDelay: "150ms" }}
                     />
                     <span
-                      className="w-1.5 h-1.5 bg-card-ink-muted rounded-full animate-bounce"
+                      className="w-2 h-2 bg-card-muted rounded-full animate-bounce"
                       style={{ animationDelay: "300ms" }}
                     />
                   </div>
