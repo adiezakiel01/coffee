@@ -129,14 +129,21 @@ export default function BrewsPage() {
           return (
             new Date(a.brewed_at).getTime() - new Date(b.brewed_at).getTime()
           );
-        case "rating desc":
-          return (b.rating ?? -1) - (a.rating ?? -1);
-        case "rating asc":
-          return (a.rating ?? 11) - (b.rating ?? 11);
+        case "rating_desc":
+          if (a.rating === null && b.rating === null) return 0;
+          if (a.rating === null) return 1;
+          if (b.rating === null) return -1;
+          return b.rating - a.rating;
+        case "rating_asc":
+          if (a.rating === null && b.rating === null) return 0;
+          if (a.rating === null) return 1;
+          if (b.rating === null) return -1;
+          return a.rating - b.rating;
         default:
           return 0;
       }
     });
+
     return filtered;
   }, [brews, beanFilter, brewTypeFilter, sortOption]);
 

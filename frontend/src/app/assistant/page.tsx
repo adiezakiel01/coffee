@@ -27,6 +27,7 @@ export default function AssistantPage() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   async function sendMessage(text: string) {

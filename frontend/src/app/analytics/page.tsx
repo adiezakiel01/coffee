@@ -293,8 +293,8 @@ export default function AnalyticsPage() {
                   />
                   <Bar
                     dataKey="avg"
-                    shape={(props: any) => (
-                      <ColoredBar {...props} avg={props.avg ?? props.value} />
+                    shape={(props: ColoredBarProps & { value?: number }) => (
+                      <ColoredBar {...props} value={props.value} />
                     )}
                     maxBarSize={80}
                   />
