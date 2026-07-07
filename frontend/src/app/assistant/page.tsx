@@ -139,14 +139,14 @@ export default function AssistantPage() {
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 ${
                     msg.role === "user"
                       ? "bg-accent-strong text-ink rounded-br-sm"
-                      : "bg-card text-card-ink rounded-bl-sm"
+                      : "bg-card text-accent-roast rounded-bl-sm"
                   }`}
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">
                     {msg.content}
                   </p>
                   <p
-                    className={`text-xs mt-1 ${
+                    className={`text-xs text-accent mt-1 ${
                       msg.role === "user"
                         ? "text-ink/60"
                         : "text-card-ink-muted"
