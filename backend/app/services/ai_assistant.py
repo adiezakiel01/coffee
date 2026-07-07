@@ -34,7 +34,7 @@ _chat_sessions: dict[str, list] = {}
 def get_llm() -> ChatOllama:
     return ChatOllama(
         base_url=settings.ollama_base_url,
-        model=settings.ollama_model_name,
+        model=settings.ollama_model,
         temperature=0.3,
     )
 

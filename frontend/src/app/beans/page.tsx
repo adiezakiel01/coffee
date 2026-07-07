@@ -232,8 +232,8 @@ export default function BeansPage() {
               will be permanently deleted.
             </p>
             <p className="text-sm text-accent-strong text-card-ink-muted mb-5">
-              Brews logged against this bean won't be deleted, but they'll no
-              longer be associated with it.
+              Brews logged against this bean will not be deleted, but they will
+              no longer be associated with it.
             </p>
             <div className="flex gap-2">
               <button

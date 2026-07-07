@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     database_url: str
     resend_api_key: str = ""
     ollama_base_url: str = "http://localhost:11434"
-    ollama_model_name: str = "gemma3:4b"
+    ollama_model: str = "qwen2.5-coder:7b"
 
 
 settings = Settings()
