@@ -529,7 +529,7 @@ export default function BrewsPage() {
 
               {/* Parameters grid */}
               {isEditing ? (
-                <div className="grid grid-cols-2 gap-3 mb-3">
+                <div className="grid grid-cols-2 text-accent-roast gap-3 mb-3">
                   <WheelPicker
                     label="Water temp"
                     compact
@@ -712,7 +712,7 @@ export default function BrewsPage() {
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
-                        className="text-xs text-card-ink-muted"
+                        className="text-xs text-red-700"
                       >
                         Cancel
                       </button>
