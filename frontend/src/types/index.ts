@@ -75,7 +75,7 @@ export interface BrewCreate {
   ice_grams?: number | null;
 }
 
-export interface BrewUpdate extends Partial<BrewCreate> {}
+export type BrewUpdate = Partial<BrewCreate>;
 
 export interface BrewParameter {
   id: number;

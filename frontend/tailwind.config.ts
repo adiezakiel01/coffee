@@ -11,6 +11,8 @@ const config: Config = {
           title: "#3d2a1f",
           muted: "#6b5d50",
           faint: "#a89888",
+          "card-ink": "#3d2a1f",
+          "card-ink-muted": "#6b5d50",
         },
         accent: {
           DEFAULT: "#c89666",

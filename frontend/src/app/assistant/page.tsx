@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { chatApi } from "@/lib/api";
 import { generateSessionId } from "@/lib/utils";
 

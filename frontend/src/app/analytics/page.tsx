@@ -62,15 +62,28 @@ function barColor(avg: number): string {
   return "#c89666";
 }
 
-function ColoredBar(props: any) {
-  const { x, y, width, height, avg } = props;
+interface ColoredBarProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  value?: number;
+}
+
+function ColoredBar({
+  x = 0,
+  y = 0,
+  width = 0,
+  height = 0,
+  value = 0,
+}: ColoredBarProps) {
   return (
     <rect
       x={x}
       y={y}
       width={width}
       height={height}
-      fill={barColor(avg)}
+      fill={barColor(value)}
       rx={3}
     />
   );
@@ -273,10 +286,7 @@ export default function AnalyticsPage() {
                       fontSize: 12,
                       color: "#3d2a1f",
                     }}
-                    formatter={(value: number, name: string) => [
-                      `${value}/10`,
-                      "Avg rating",
-                    ]}
+                    formatter={(value: number) => [`${value}/10`, "Avg rating"]}
                     labelFormatter={(label) =>
                       `${label} (${chartData.find((d) => d.label === label)?.count ?? 0} brew${chartData.find((d) => d.label === label)?.count !== 1 ? "s" : ""})`
                     }

@@ -690,7 +690,7 @@ export default function BrewsPage() {
 
                   {brew.tasting_notes && (
                     <p className="text-xs text-accent-roast text-card-ink-muted italic mb-2">
-                      "{brew.tasting_notes}"
+                      &ldquo;{brew.tasting_notes}&rdquo;
                     </p>
                   )}
                 </>
