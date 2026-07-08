@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { ValueType } from "recharts/types/component/DefaultTooltipContent";
+import type { BarShapeProps } from "recharts/types/cartesian/Bar";
 import { beansApi, brewsApi, analyticsApi } from "@/lib/api";
 import { Bean, Brew, SuggestionResult } from "@/types";
 
@@ -298,9 +299,12 @@ export default function AnalyticsPage() {
                   />
                   <Bar
                     dataKey="avg"
-                    shape={(props: ColoredBarProps & { value?: number }) => (
-                      <ColoredBar {...props} value={props.value} />
-                    )}
+                    shape={(props: BarShapeProps) => {
+                      const value = Array.isArray(props.value)
+                        ? props.value[1]
+                        : (props.value ?? 0);
+                      return <ColoredBar {...props} value={value} />;
+                    }}
                     maxBarSize={80}
                   />
                 </BarChart>
