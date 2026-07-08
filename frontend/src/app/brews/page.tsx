@@ -129,12 +129,12 @@ export default function BrewsPage() {
           return (
             new Date(a.brewed_at).getTime() - new Date(b.brewed_at).getTime()
           );
-        case "rating_desc":
+        case "rating desc":
           if (a.rating === null && b.rating === null) return 0;
           if (a.rating === null) return 1;
           if (b.rating === null) return -1;
           return b.rating - a.rating;
-        case "rating_asc":
+        case "rating asc":
           if (a.rating === null && b.rating === null) return 0;
           if (a.rating === null) return 1;
           if (b.rating === null) return -1;
@@ -483,8 +483,8 @@ export default function BrewsPage() {
         >
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
-          <option value="rating_desc">Rating ↓</option>
-          <option value="rating_asc">Rating ↑</option>
+          <option value="rating desc">Rating ↓</option>
+          <option value="rating asc">Rating ↑</option>
         </select>
       </div>
 
