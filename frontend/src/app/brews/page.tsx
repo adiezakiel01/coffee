@@ -333,7 +333,7 @@ export default function BrewsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 text-accent-roast font-semibold gap-4 mb-4">
           <WheelPicker
             label="Water temp"
-            value={form.water_temp_celsius}
+            value={form.water_temp_celsius ?? undefined}
             onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
             min={80}
             max={98}
@@ -342,7 +342,7 @@ export default function BrewsPage() {
           />
           <WheelPicker
             label="Coffee"
-            value={form.coffee_grams}
+            value={form.coffee_grams ?? undefined}
             onChange={(v) => setForm({ ...form, coffee_grams: v })}
             min={5}
             max={40}
@@ -360,7 +360,7 @@ export default function BrewsPage() {
             >
               <WheelPicker
                 label="Water"
-                value={form.water_grams}
+                value={form.water_grams ?? undefined}
                 onChange={(v) => setForm({ ...form, water_grams: v })}
                 min={50}
                 max={600}
