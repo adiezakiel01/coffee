@@ -1,8 +1,6 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from app.database import engine
 from app.routers import beans, brews, brew_parameters, analytics, chat
 
@@ -12,7 +10,6 @@ async def lifespan(app: FastAPI):
     async with engine.begin():
         print("Database connection established")
     yield
-
     await engine.dispose()
     print("Database connection closed")
 
@@ -26,7 +23,10 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://coffee-navy-pi.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

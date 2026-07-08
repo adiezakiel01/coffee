@@ -1,21 +1,17 @@
 import asyncio
 from logging.config import fileConfig
-
 from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
-
 from app.config import settings
-from app.database import Base
+from app.database import Base, to_asyncpg_url
 
 # Import all models so Alembic can detect them
 import app.models  # noqa: F401
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.database_url)
-
+config.set_main_option("sqlalchemy.url", to_asyncpg_url(settings.database_url))
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
 target_metadata = Base.metadata
 
 
@@ -38,7 +34,7 @@ def do_run_migrations(connection):
 
 
 async def run_async_migrations() -> None:
-    engine = create_async_engine(settings.database_url)
+    engine = create_async_engine(to_asyncpg_url(settings.database_url))
     async with engine.begin() as conn:
         await conn.run_sync(do_run_migrations)
     await engine.dispose()
