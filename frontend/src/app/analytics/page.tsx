@@ -286,7 +286,10 @@ export default function AnalyticsPage() {
                       fontSize: 12,
                       color: "#3d2a1f",
                     }}
-                    formatter={(value: number) => [`${value}/10`, "Avg rating"]}
+                    formatter={(value: number | undefined) => [
+                      value !== undefined ? `${value}/10` : "—",
+                      "Avg rating",
+                    ]}
                     labelFormatter={(label) =>
                       `${label} (${chartData.find((d) => d.label === label)?.count ?? 0} brew${chartData.find((d) => d.label === label)?.count !== 1 ? "s" : ""})`
                     }
