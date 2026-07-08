@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { chatApi } from "@/lib/api";
 import { generateSessionId } from "@/lib/utils";
-import { Coffee } from "lucide-react";
+import { Coffee, MessagesSquare } from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
@@ -82,7 +82,7 @@ export default function AssistantPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center px-4">
         <div className="text-4xl mb-4">
-          <Coffee size={50} />
+          <Coffee size={60} />
         </div>
         <h2 className="text-lg font-medium text-ink mb-2">
           Assistant available locally
@@ -112,7 +112,9 @@ export default function AssistantPage() {
         {messages.length === 0 ? (
           /* Empty state with suggested questions */
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="text-3xl mb-4">💬</div>
+            <div className="text-3xl mb-4">
+              <MessagesSquare size={60} />
+            </div>
             <p className="text-sm text-ink/60 mb-6 max-w-sm">
               Ask about your brew history, parameter patterns, or what to try
               next.

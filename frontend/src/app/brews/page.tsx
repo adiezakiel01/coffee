@@ -477,7 +477,7 @@ export default function BrewsPage() {
                   : "text-card-ink-muted"
               }`}
             >
-              {type === "all" ? "All" : type === "hot" ? "Hot" : "❄ Iced"}
+              {type === "all" ? "All" : type === "hot" ? "Hot" : "Iced"}
             </button>
           ))}
         </div>
