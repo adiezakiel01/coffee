@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { chatApi } from "@/lib/api";
 import { generateSessionId } from "@/lib/utils";
+import { Coffee } from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
@@ -80,7 +81,9 @@ export default function AssistantPage() {
   if (!ASSISTANT_ENABLED) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center px-4">
-        <div className="text-4xl mb-4">☕</div>
+        <div className="text-4xl mb-4">
+          <Coffee size={35} />
+        </div>
         <h2 className="text-lg font-medium text-ink mb-2">
           Assistant available locally
         </h2>

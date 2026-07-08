@@ -5,6 +5,7 @@ import { beansApi, brewsApi } from "@/lib/api";
 import type { Bean, Brew, BrewCreate } from "@/types";
 import WheelPicker from "@/components/SliderInput";
 import NewBeanModal from "@/components/NewBeanModal";
+import { Snowflake } from "lucide-react";
 
 const GRIND_SIZES = [
   "Extra-fine",
@@ -523,8 +524,9 @@ export default function BrewsPage() {
                     {beanName(brew.bean_id)}
                   </span>
                   {isIced && (
-                    <span className="text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent-strong">
-                      ❄ iced
+                    <span className="text-xs px-1.5 py-0.5 rounded bg-accent/15 text-accent-strong inline-flex items-center gap-1">
+                      <Snowflake size={12} className="shrink-0" />
+                      iced
                     </span>
                   )}
                   {filterLabel && (
