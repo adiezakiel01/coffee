@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import WakingScreen from "@/components/WakingScreen";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,12 +20,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-base text-ink`}>
-        <div className="flex h-screen overflow-hidden">
-          <Sidebar />
-          <main className="flex-1 p-8 overflow-y-auto">
-            <ErrorBoundary>{children}</ErrorBoundary>
-          </main>
-        </div>
+        <WakingScreen>
+          <div className="flex h-screen overflow-hidden">
+            <Sidebar />
+            <main className="flex-1 p-8 overflow-y-auto">
+              <ErrorBoundary>{children}</ErrorBoundary>
+            </main>
+          </div>
+        </WakingScreen>
       </body>
     </html>
   );
