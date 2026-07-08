@@ -31,7 +31,16 @@ const emptyForm: BrewCreate = {
   ice_grams: null,
 };
 
-type SortOption = "newest" | "oldest" | "rating desc" | "rating asc";
+interface BrewEditForm {
+  rating?: number | null;
+  tasting_notes?: string | null;
+  grind_size?: string | null;
+  water_temp_celsius?: number;
+  coffee_grams?: number;
+  water_grams?: number;
+}
+
+type SortOption = "newest" | "oldest" | "rating_desc" | "rating_asc";
 type BrewTypeFilter = "all" | "hot" | "iced";
 
 export default function BrewsPage() {
@@ -48,7 +57,7 @@ export default function BrewsPage() {
   const [sortOption, setSortOption] = useState<SortOption>("newest");
 
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState<Partial<Brew>>({});
+  const [editForm, setEditForm] = useState<BrewEditForm>({});
 
   /*const [brewType, setBrewType] = useState<"hot" | "iced">("hot");
   const [filterType, setFilterType] = useState<"cone" | "flat">("cone");
@@ -129,12 +138,12 @@ export default function BrewsPage() {
           return (
             new Date(a.brewed_at).getTime() - new Date(b.brewed_at).getTime()
           );
-        case "rating desc":
+        case "rating_desc":
           if (a.rating === null && b.rating === null) return 0;
           if (a.rating === null) return 1;
           if (b.rating === null) return -1;
           return b.rating - a.rating;
-        case "rating asc":
+        case "rating_asc":
           if (a.rating === null && b.rating === null) return 0;
           if (a.rating === null) return 1;
           if (b.rating === null) return -1;
@@ -192,17 +201,14 @@ export default function BrewsPage() {
       tasting_notes: brew.tasting_notes,
       grind_size: brew.grind_size,
       water_temp_celsius: brew.water_temp_celsius
-        ? parseFloat(String(brew.water_temp_celsius))
+        ? parseFloat(brew.water_temp_celsius)
         : undefined,
       coffee_grams: brew.coffee_grams
-        ? parseFloat(String(brew.coffee_grams))
+        ? parseFloat(brew.coffee_grams)
         : undefined,
-      water_grams: brew.water_grams
-        ? parseFloat(String(brew.water_grams))
-        : undefined,
+      water_grams: brew.water_grams ? parseFloat(brew.water_grams) : undefined,
     });
   }
-
   async function saveEdit(brewId: number) {
     try {
       const updated = await brewsApi.update(brewId, editForm);
@@ -483,8 +489,8 @@ export default function BrewsPage() {
         >
           <option value="newest">Newest first</option>
           <option value="oldest">Oldest first</option>
-          <option value="rating desc">Rating ↓</option>
-          <option value="rating asc">Rating ↑</option>
+          <option value="rating_desc">Rating ↓</option>
+          <option value="rating_asc">Rating ↑</option>
         </select>
       </div>
 
@@ -544,11 +550,7 @@ export default function BrewsPage() {
                     max={98}
                     step={0.5}
                     unit="°C"
-                    value={
-                      editForm.water_temp_celsius !== undefined
-                        ? parseFloat(String(editForm.water_temp_celsius))
-                        : undefined
-                    }
+                    value={editForm.water_temp_celsius}
                     onChange={(v) =>
                       setEditForm({ ...editForm, water_temp_celsius: v })
                     }
@@ -561,11 +563,7 @@ export default function BrewsPage() {
                       max={40}
                       step={0.5}
                       unit="g"
-                      value={
-                        editForm.coffee_grams !== undefined
-                          ? parseFloat(String(editForm.coffee_grams))
-                          : undefined
-                      }
+                      value={editForm.coffee_grams}
                       onChange={(v) =>
                         setEditForm({ ...editForm, coffee_grams: v })
                       }
@@ -578,11 +576,7 @@ export default function BrewsPage() {
                       max={600}
                       step={5}
                       unit="g"
-                      value={
-                        editForm.water_grams !== undefined
-                          ? parseFloat(String(editForm.water_grams))
-                          : undefined
-                      }
+                      value={editForm.water_grams}
                       onChange={(v) =>
                         setEditForm({ ...editForm, water_grams: v })
                       }
