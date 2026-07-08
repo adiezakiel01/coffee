@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import type { ValueType } from "recharts/types/component/DefaultTooltipContent";
 import { beansApi, brewsApi, analyticsApi } from "@/lib/api";
 import { Bean, Brew, SuggestionResult } from "@/types";
 
@@ -286,10 +287,11 @@ export default function AnalyticsPage() {
                       fontSize: 12,
                       color: "#3d2a1f",
                     }}
-                    formatter={(value: number | undefined) => [
-                      value !== undefined ? `${value}/10` : "—",
-                      "Avg rating",
-                    ]}
+                    formatter={(value: ValueType | undefined) => {
+                      const num =
+                        typeof value === "number" ? value : Number(value);
+                      return [!isNaN(num) ? `${num}/10` : "—", "Avg rating"];
+                    }}
                     labelFormatter={(label) =>
                       `${label} (${chartData.find((d) => d.label === label)?.count ?? 0} brew${chartData.find((d) => d.label === label)?.count !== 1 ? "s" : ""})`
                     }
