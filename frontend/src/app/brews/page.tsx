@@ -26,7 +26,7 @@ const emptyForm: BrewCreate = {
   bloom_time_seconds: undefined,
   total_time_seconds: undefined,
   rating: undefined,
-  tasting_notes: "",
+  notes: "",
   brew_type: "hot",
   filter_type: "cone",
   ice_grams: null,
@@ -34,7 +34,7 @@ const emptyForm: BrewCreate = {
 
 interface BrewEditForm {
   rating?: number | null;
-  tasting_notes?: string | null;
+  notes?: string | null;
   grind_size?: string | null;
   water_temp_celsius?: number;
   coffee_grams?: number;
@@ -180,7 +180,7 @@ export default function BrewsPage() {
         ...form,
         bean_id: form.bean_id || null,
         grind_size: form.grind_size || null,
-        tasting_notes: form.tasting_notes || null,
+        notes: form.notes || null,
         brew_type: form.brew_type,
         filter_type: form.filter_type,
         ice_grams: form.brew_type === "iced" ? form.ice_grams : null,
@@ -199,7 +199,7 @@ export default function BrewsPage() {
     setEditingId(brew.id);
     setEditForm({
       rating: brew.rating,
-      tasting_notes: brew.tasting_notes,
+      notes: brew.notes,
       grind_size: brew.grind_size,
       water_temp_celsius: brew.water_temp_celsius
         ? parseFloat(brew.water_temp_celsius)
@@ -424,9 +424,9 @@ export default function BrewsPage() {
 
         <input
           type="text"
-          placeholder="Tasting notes"
-          value={form.tasting_notes ?? ""}
-          onChange={(e) => setForm({ ...form, tasting_notes: e.target.value })}
+          placeholder="Notes"
+          value={form.notes ?? ""}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
           className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink border text-accent-roast border-card-ink-muted/20 mb-4"
         />
 
@@ -618,14 +618,14 @@ export default function BrewsPage() {
                   />
                   <div className="col-span-2">
                     <label className="text-xs text-card-ink-muted block mb-1">
-                      Tasting notes
+                      Notes
                     </label>
                     <input
-                      value={editForm.tasting_notes ?? ""}
+                      value={editForm.notes ?? ""}
                       onChange={(e) =>
                         setEditForm({
                           ...editForm,
-                          tasting_notes: e.target.value,
+                          notes: e.target.value,
                         })
                       }
                       className="w-full rounded-lg px-2 py-1.5 text-xs bg-white border border-card-ink-muted/20 text-card-ink"
@@ -691,9 +691,9 @@ export default function BrewsPage() {
                     )}
                   </div>
 
-                  {brew.tasting_notes && (
+                  {brew.notes && (
                     <p className="text-xs text-accent-roast text-card-ink-muted italic mb-2">
-                      &ldquo;{brew.tasting_notes}&rdquo;
+                      &ldquo;{brew.notes}&rdquo;
                     </p>
                   )}
                 </>

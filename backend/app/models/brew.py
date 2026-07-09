@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
 class Brew(Base):
     __tablename__ = "brews"
-
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     bean_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("beans.id", ondelete="SET NULL")
@@ -33,18 +32,15 @@ class Brew(Base):
     water_grams: Mapped[float | None] = mapped_column(Numeric(6, 1))
     bloom_time_seconds: Mapped[int | None] = mapped_column(Integer)
     total_time_seconds: Mapped[int | None] = mapped_column(Integer)
-    tasting_notes: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.utcnow
     )
     rating: Mapped[int | None] = mapped_column(SmallInteger)
-
     brew_type: Mapped[str | None] = mapped_column(String(10))
     filter_type: Mapped[str | None] = mapped_column(String(20))
     ice_grams: Mapped[int | None] = mapped_column(Integer)
-
     bean: Mapped["Bean | None"] = relationship("Bean", back_populates="brews")
-
     parameters: Mapped[list["BrewParameter"]] = relationship(
         "BrewParameter", back_populates="brew", cascade="all, delete-orphan"
     )

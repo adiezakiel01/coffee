@@ -75,12 +75,12 @@ export default function BeanDetailModal({
         </div>
 
         {/* Notes */}
-        {bean.notes && (
+        {bean.tasting_notes && (
           <div className="border-t border-card-ink-muted/15 text-accent-strong pt-3 mb-4">
-            <p className="text-xs text-card-ink-muted uppercase tracking-wide mb-1">
-              Notes
+            <p className="text-xs text-card-ink-muted uppercase text-accent-roast font-bold tracking-wide mb-1">
+              Tasting Notes
             </p>
-            <p className="text-sm text-card-ink">{bean.notes}</p>
+            <p className="text-sm text-card-ink">{bean.tasting_notes}</p>
           </div>
         )}
 

@@ -12,7 +12,7 @@ class BeanBase(BaseModel):
     variety: str | None = Field(None, max_length=255)
     altitude: str | None = Field(None, max_length=255)
     process: str | None = Field(None, max_length=255)
-    notes: str | None = None
+    tasting_notes: str | None = None
     roast_date: date | None = None
 
 
@@ -30,12 +30,11 @@ class BeanUpdate(BeanBase):
     variety: str | None = Field(None, max_length=255)
     altitude: str | None = Field(None, max_length=255)
     process: str | None = Field(None, max_length=255)
-    notes: str | None = None
+    tasting_notes: str | None = None
     roast_date: date | None = None
 
 
 class BeanResponse(BeanBase):
     model_config = ConfigDict(from_attributes=True)
-
     id: int
     created_at: datetime

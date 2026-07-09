@@ -9,11 +9,10 @@ export interface Bean {
   variety: string | null;
   altitude: number | null;
   process: string | null;
-  notes: string | null;
+  tasting_notes: string | null;
   roast_date: string | null;
   created_at: string;
 }
-
 export interface BeanCreate {
   name: string;
   roaster?: string | null;
@@ -24,10 +23,9 @@ export interface BeanCreate {
   variety?: string | null;
   altitude?: number | null;
   process?: string | null;
-  notes?: string | null;
+  tasting_notes?: string | null;
   roast_date?: string | null;
 }
-
 export interface BeanUpdate {
   name?: string;
   roaster?: string | null;
@@ -38,10 +36,9 @@ export interface BeanUpdate {
   variety?: string | null;
   altitude?: number | null;
   process?: string | null;
-  notes?: string | null;
+  tasting_notes?: string | null;
   roast_date?: string | null;
 }
-
 export interface Brew {
   id: number;
   bean_id: number | null;
@@ -53,13 +50,12 @@ export interface Brew {
   bloom_time_seconds: number | null;
   total_time_seconds: number | null;
   rating: number | null;
-  tasting_notes: string | null;
+  notes: string | null;
   brew_type: string | null;
   filter_type: string | null;
   ice_grams: number | null;
   created_at: string;
 }
-
 export interface BrewCreate {
   bean_id?: number | null;
   grind_size?: string | null;
@@ -69,28 +65,24 @@ export interface BrewCreate {
   bloom_time_seconds?: number | null;
   total_time_seconds?: number | null;
   rating?: number | null;
-  tasting_notes?: string | null;
+  notes?: string | null;
   brew_type?: string | null;
   filter_type?: string | null;
   ice_grams?: number | null;
 }
-
 export type BrewUpdate = Partial<BrewCreate>;
-
 export interface BrewParameter {
   id: number;
   brew_id: number;
   key: string;
   value: string;
 }
-
 export interface RatingTrendPoint {
   brew_id: number;
   brewed_at: string;
   rating: number | null;
   bean_name: string | null;
 }
-
 export interface CorrelationResult {
   bean_id: number;
   bean_name: string;
@@ -99,7 +91,6 @@ export interface CorrelationResult {
   best_brews: Record<string, unknown>[];
   message: string | null;
 }
-
 export interface SuggestionResult {
   bean_id: number;
   bean_name: string;
@@ -108,12 +99,10 @@ export interface SuggestionResult {
   based_on_brew_id: number | null;
   message: string;
 }
-
 export interface ChatRequest {
   session_id: string;
   message: string;
 }
-
 export interface ChatResponse {
   session_id: string;
   response: string;

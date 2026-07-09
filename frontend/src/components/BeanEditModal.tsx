@@ -35,7 +35,7 @@ export default function BeanEditModal({
     variety: bean.variety,
     altitude: bean.altitude,
     process: bean.process,
-    notes: bean.notes,
+    tasting_notes: bean.tasting_notes,
     roast_date: bean.roast_date,
   });
   const [submitting, setSubmitting] = useState(false);
@@ -166,15 +166,15 @@ export default function BeanEditModal({
               />
             </div>
 
-            {/* Notes — full width textarea */}
+            {/* Tasting notes — full width textarea */}
             <div className="col-span-2">
               <label className="text-xs text-card-ink-muted text-accent-roast uppercase tracking-wide block mb-1">
-                Notes
+                Tasting notes
               </label>
               <textarea
-                value={form.notes ?? ""}
+                value={form.tasting_notes ?? ""}
                 onChange={(e) =>
-                  setForm({ ...form, notes: e.target.value || null })
+                  setForm({ ...form, tasting_notes: e.target.value || null })
                 }
                 rows={3}
                 className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong text-card-ink border border-card-ink-muted/20 resize-none"
