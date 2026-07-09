@@ -235,7 +235,7 @@ export default function BrewsPage() {
   return (
     <div>
       <p className="text-xs text-accent uppercase tracking-wide mb-1">brews</p>
-      <h1 className="text-xl font-medium mb-6">Log a brew</h1>
+      <h1 className="text-xl font-display font-medium mb-6">Log a brew</h1>
 
       {error && (
         <p className="text-red-400 text-sm mb-4 bg-red-950/30 px-3 py-2 rounded-lg">
@@ -353,9 +353,6 @@ export default function BrewsPage() {
 
           {/* Liquid: water + ice grouped */}
           <div className="col-span-2">
-            <label className="text-xs text-card-ink-muted block mb-1.5">
-              Liquid
-            </label>
             <div
               className={`grid gap-3 ${form.brew_type === "iced" ? "grid-cols-2" : "grid-cols-1"}`}
             >
@@ -701,7 +698,7 @@ export default function BrewsPage() {
 
               {/* Footer: date + actions */}
               <div className="flex items-center justify-between pt-2 border-t border-card-ink-muted/10">
-                <span className="text-xs text-accent text-card-ink-muted font-mono">
+                <span className="text-xs text-accent text-card-ink-muted font-display">
                   {formatDate(brew.brewed_at)}
                 </span>
                 <div className="flex gap-3">

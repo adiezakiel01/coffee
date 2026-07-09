@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Sora, Fraunces } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import WakingScreen from "@/components/WakingScreen";
 
-const inter = Inter({ subsets: ["latin"] });
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora" });
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  weight: ["400", "500", "600"],
+});
 
 export const metadata: Metadata = {
   title: "Brew Tracker",
@@ -19,7 +24,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-base text-ink`}>
+      <body
+        className={`${sora.className} ${fraunces.variable} bg-base text-ink`}
+      >
         <WakingScreen>
           <div className="flex h-screen overflow-hidden">
             <Sidebar />

@@ -100,8 +100,12 @@ export default function Sidebar() {
       >
         {!collapsed && (
           <div>
-            <p className="text-base font-medium text-ink">Brew tracker</p>
-            <p className="text-xs text-accent mt-1">pour-over journal</p>
+            <p className="text-base font-display font-medium text-ink">
+              Brew tracker
+            </p>
+            <p className="text-xs text-accent font-sans mt-1">
+              pour-over journal
+            </p>
           </div>
         )}
         <button

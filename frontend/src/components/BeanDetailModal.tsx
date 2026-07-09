@@ -45,7 +45,7 @@ export default function BeanDetailModal({
         {/* Header */}
         <div className="flex items-start justify-between text-accent-roast mb-4">
           <div>
-            <h3 className="text-accent-roast font-bold text-card-ink">
+            <h3 className="text-accent-roast font-display font-bold text-card-ink">
               {bean.name}
             </h3>
             <p className="text-xs text-accent-strong mt-0.5">

@@ -96,7 +96,7 @@ export default function BeanEditModal({
         className="bg-card rounded-xl p-5 w-full max-w-md max-h-[85vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-base font-semibold text-card-ink mb-4">
+        <h3 className="text-base font-display font-semibold text-card-ink mb-4">
           Edit bean
         </h3>
 

@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-
 const config: Config = {
   content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
@@ -24,9 +23,12 @@ const config: Config = {
           muted: "#a89888",
         },
       },
+      fontFamily: {
+        sans: ["var(--font-sora)", "sans-serif"],
+        display: ["var(--font-fraunces)", "serif"],
+      },
     },
   },
   plugins: [],
 };
-
 export default config;

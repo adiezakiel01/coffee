@@ -188,7 +188,7 @@ export default function AnalyticsPage() {
           <p className="text-xs text-accent uppercase tracking-wide mb-1">
             analytics
           </p>
-          <h1 className="text-xl font-medium">Brew insights</h1>
+          <h1 className="text-xl font-display font-medium">Brew insights</h1>
         </div>
         <select
           value={selectedBeanId ?? ""}

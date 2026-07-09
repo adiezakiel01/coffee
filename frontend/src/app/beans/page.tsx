@@ -104,7 +104,7 @@ export default function BeansPage() {
           <p className="text-xs text-accent uppercase tracking-wide mb-1">
             beans
           </p>
-          <h1 className="text-xl font-medium">Your beans</h1>
+          <h1 className="text-xl font-display font-medium">Your beans</h1>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
