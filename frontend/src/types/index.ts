@@ -51,6 +51,7 @@ export interface Brew {
   total_time_seconds: number | null;
   rating: number | null;
   notes: string | null;
+  flavor_tags: string[] | null;
   brew_type: string | null;
   filter_type: string | null;
   ice_grams: number | null;
@@ -66,6 +67,7 @@ export interface BrewCreate {
   total_time_seconds?: number | null;
   rating?: number | null;
   notes?: string | null;
+  flavor_tags?: string[] | null;
   brew_type?: string | null;
   filter_type?: string | null;
   ice_grams?: number | null;

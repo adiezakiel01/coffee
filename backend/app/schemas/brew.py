@@ -13,6 +13,7 @@ class BrewBase(BaseModel):
     total_time_seconds: int | None = None
     rating: int | None = Field(None, ge=1, le=10)
     notes: str | None = None
+    flavor_tags: list[str] | None = None
     brew_type: str | None = Field(None, max_length=10)
     filter_type: str | None = Field(None, max_length=20)
     ice_grams: int | None = None
@@ -32,6 +33,7 @@ class BrewUpdate(BaseModel):
     total_time_seconds: int | None = None
     rating: int | None = Field(None, ge=1, le=10)
     notes: str | None = None
+    flavor_tags: list[str] | None = None
     brew_type: str | None = Field(None, max_length=10)
     filter_type: str | None = Field(None, max_length=20)
     ice_grams: int | None = None
@@ -42,4 +44,3 @@ class BrewResponse(BrewBase):
     id: int
     brewed_at: datetime
     created_at: datetime
-
