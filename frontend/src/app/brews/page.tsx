@@ -5,6 +5,7 @@ import { beansApi, brewsApi } from "@/lib/api";
 import type { Bean, Brew, BrewCreate } from "@/types";
 import WheelPicker from "@/components/SliderInput";
 import NewBeanModal from "@/components/NewBeanModal";
+import FlavorPicker from "@/components/FlavorPicker";
 import { Snowflake } from "lucide-react";
 
 const GRIND_SIZES = [
@@ -27,6 +28,7 @@ const emptyForm: BrewCreate = {
   total_time_seconds: undefined,
   rating: undefined,
   notes: "",
+  flavor_tags: [],
   brew_type: "hot",
   filter_type: "cone",
   ice_grams: null,
@@ -35,6 +37,7 @@ const emptyForm: BrewCreate = {
 interface BrewEditForm {
   rating?: number | null;
   notes?: string | null;
+  flavor_tags?: string[] | null;
   grind_size?: string | null;
   water_temp_celsius?: number;
   coffee_grams?: number;
@@ -181,6 +184,10 @@ export default function BrewsPage() {
         bean_id: form.bean_id || null,
         grind_size: form.grind_size || null,
         notes: form.notes || null,
+        flavor_tags:
+          form.flavor_tags && form.flavor_tags.length > 0
+            ? form.flavor_tags
+            : null,
         brew_type: form.brew_type,
         filter_type: form.filter_type,
         ice_grams: form.brew_type === "iced" ? form.ice_grams : null,
@@ -200,6 +207,7 @@ export default function BrewsPage() {
     setEditForm({
       rating: brew.rating,
       notes: brew.notes,
+      flavor_tags: brew.flavor_tags,
       grind_size: brew.grind_size,
       water_temp_celsius: brew.water_temp_celsius
         ? parseFloat(brew.water_temp_celsius)
@@ -419,13 +427,27 @@ export default function BrewsPage() {
           />
         </div>
 
-        <input
-          type="text"
-          placeholder="Notes"
-          value={form.notes ?? ""}
-          onChange={(e) => setForm({ ...form, notes: e.target.value })}
-          className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink border text-accent-roast border-card-ink-muted/20 mb-4"
-        />
+        {/* Flavor tags */}
+        <div className="mb-4">
+          <FlavorPicker
+            value={form.flavor_tags ?? null}
+            onChange={(tags) => setForm({ ...form, flavor_tags: tags })}
+          />
+        </div>
+
+        {/* Free-text notes — process observations, e.g. "too diluted", "grounds too coarse" */}
+        <div className="mb-4">
+          <label className="text-xs text-card-ink-muted text-accent-roast font-bold block mb-1.5">
+            Notes
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. too diluted, grounds may be too coarse"
+            value={form.notes ?? ""}
+            onChange={(e) => setForm({ ...form, notes: e.target.value })}
+            className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink border text-accent-roast border-card-ink-muted/20"
+          />
+        </div>
 
         <button
           type="submit"
@@ -614,6 +636,14 @@ export default function BrewsPage() {
                     onChange={(v) => setEditForm({ ...editForm, rating: v })}
                   />
                   <div className="col-span-2">
+                    <FlavorPicker
+                      value={editForm.flavor_tags ?? null}
+                      onChange={(tags) =>
+                        setEditForm({ ...editForm, flavor_tags: tags })
+                      }
+                    />
+                  </div>
+                  <div className="col-span-2">
                     <label className="text-xs text-card-ink-muted block mb-1">
                       Notes
                     </label>
@@ -687,6 +717,19 @@ export default function BrewsPage() {
                       </div>
                     )}
                   </div>
+
+                  {brew.flavor_tags && brew.flavor_tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-2">
+                      {brew.flavor_tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-xs px-2 py-0.5 rounded-full bg-accent/15 text-accent-strong"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
 
                   {brew.notes && (
                     <p className="text-xs text-accent-roast text-card-ink-muted italic mb-2">

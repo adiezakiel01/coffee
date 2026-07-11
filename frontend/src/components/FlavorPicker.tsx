@@ -8,6 +8,9 @@ export interface FlavorCategory {
   subcategories: Record<string, string[]>;
 }
 
+// Own taxonomy, inspired by the general concept of a coffee flavor wheel
+// (broad category -> subcategory -> specific descriptor). Not a reproduction
+// of any specific published wheel's structure, wording, or colors.
 export const FLAVOR_CATEGORIES: Record<string, FlavorCategory> = {
   fruity: {
     label: "Fruity",
@@ -101,14 +104,14 @@ export default function FlavorPicker({ value, onChange }: FlavorPickerProps) {
 
   return (
     <div>
-      <label className="text-xs text-card-ink-muted block mb-1.5">
+      <label className="text-xs text-card-ink-muted text-accent-roast font-bold block mb-1.5">
         Flavor tags
       </label>
 
       {/* Selected tags */}
       <div className="flex flex-wrap gap-1.5 mb-2 min-h-[26px]">
         {selected.length === 0 ? (
-          <span className="text-xs text-card-ink-muted/60 italic">
+          <span className="text-xs text-card-ink-muted/60 text-accent-strong italic">
             No flavor tags selected yet
           </span>
         ) : (
@@ -131,7 +134,7 @@ export default function FlavorPicker({ value, onChange }: FlavorPickerProps) {
       </div>
 
       {/* Category chips */}
-      <div className="flex flex-wrap gap-1.5 mb-1.5">
+      <div className="flex flex-wrap text-accent-roast gap-1.5 mb-1.5">
         {Object.entries(FLAVOR_CATEGORIES).map(([key, cat]) => (
           <button
             key={key}
@@ -157,46 +160,52 @@ export default function FlavorPicker({ value, onChange }: FlavorPickerProps) {
 
       {/* Subcategory chips */}
       {activeCategoryData && (
-        <div className="flex flex-wrap gap-1.5 mb-1.5">
-          {Object.keys(activeCategoryData.subcategories).map((sub) => (
-            <button
-              key={sub}
-              type="button"
-              onClick={() => setActiveSub(activeSub === sub ? null : sub)}
-              className="text-xs px-2.5 py-1 rounded-full border transition-colors"
-              style={{
-                borderColor: activeCategoryData.color,
-                background:
-                  activeSub === sub ? activeCategoryData.color : "transparent",
-                color:
-                  activeSub === sub
-                    ? "#fff"
-                    : "var(--tw-text-opacity, #3d2a1f)",
-              }}
-            >
-              {sub}
-            </button>
-          ))}
+        <div className="border-t border-card-card-ink-muted/15 pt-2 mb-1.5">
+          <div className="flex flex-wrap text-accent-roast gap-1.5">
+            {Object.keys(activeCategoryData.subcategories).map((sub) => (
+              <button
+                key={sub}
+                type="button"
+                onClick={() => setActiveSub(activeSub === sub ? null : sub)}
+                className="text-xs px-2.5 py-1 rounded-full border transition-colors"
+                style={{
+                  borderColor: activeCategoryData.color,
+                  background:
+                    activeSub === sub
+                      ? activeCategoryData.color
+                      : "transparent",
+                  color:
+                    activeSub === sub
+                      ? "#fff"
+                      : "var(--tw-text-opacity, #3d2a1f)",
+                }}
+              >
+                {sub}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Tag chips */}
       {activeCategoryData && activeSub && (
-        <div className="flex flex-wrap gap-1.5">
-          {activeCategoryData.subcategories[activeSub].map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              onClick={() => toggleTag(tag)}
-              className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                selected.includes(tag)
-                  ? "bg-accent-strong text-card-ink border-accent-strong"
-                  : "bg-white text-card-ink border-card-ink-muted/20"
-              }`}
-            >
-              {tag}
-            </button>
-          ))}
+        <div className="border-t border-card-card-ink-muted/15 pt-2">
+          <div className="flex flex-wrap text-accent-roast gap-1.5">
+            {activeCategoryData.subcategories[activeSub].map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                  selected.includes(tag)
+                    ? "bg-accent-strong text-card-ink border-accent-strong"
+                    : "bg-white text-card-ink border-card-ink-muted/20"
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
