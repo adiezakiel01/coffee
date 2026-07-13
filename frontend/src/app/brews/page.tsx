@@ -666,7 +666,7 @@ export default function BrewsPage() {
                       <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
                         Temp
                       </p>
-                      <p className="text-xs font-mono text-accent-strong text-card-ink">
+                      <p className="text-xs text-accent-strong text-card-ink">
                         {brew.water_temp_celsius
                           ? `${brew.water_temp_celsius}°C`
                           : "—"}
@@ -676,7 +676,7 @@ export default function BrewsPage() {
                       <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
                         Coffee/Water
                       </p>
-                      <p className="text-xs font-mono text-accent-strong text-card-ink">
+                      <p className="text-xs text-accent-strong text-card-ink">
                         {brew.coffee_grams ?? "—"}g / {totalWater(brew)}
                       </p>
                     </div>
@@ -684,7 +684,7 @@ export default function BrewsPage() {
                       <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
                         Ratio
                       </p>
-                      <p className="text-xs font-mono text-accent-strong text-card-ink">
+                      <p className="text-xs text-accent-strong text-card-ink">
                         {computeRatio(brew)}
                       </p>
                     </div>
@@ -701,7 +701,7 @@ export default function BrewsPage() {
                         <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
                           Bloom
                         </p>
-                        <p className="text-xs font-mono text-accent-strong text-card-ink">
+                        <p className="text-xs text-accent-strong text-card-ink">
                           {brew.bloom_time_seconds}s
                         </p>
                       </div>
@@ -711,7 +711,7 @@ export default function BrewsPage() {
                         <p className="text-xs font-semibold text-accent-roast text-card-ink-muted">
                           Total time
                         </p>
-                        <p className="text-xs font-mono text-accent-strong text-card-ink">
+                        <p className="text-xs text-accent-strong text-card-ink">
                           {brew.total_time_seconds}s
                         </p>
                       </div>

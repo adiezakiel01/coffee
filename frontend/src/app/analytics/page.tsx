@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 import type { ValueType } from "recharts/types/component/DefaultTooltipContent";
 import type { BarShapeProps } from "recharts/types/cartesian/Bar";
@@ -62,6 +63,16 @@ function barColor(avg: number): string {
   if (avg >= 9) return "#6b3a1f";
   if (avg >= 7) return "#8b5a2b";
   return "#c89666";
+}
+
+function brewRatio(brew: Brew): string {
+  if (!brew.coffee_grams) return "-";
+  const coffee = parseFloat(String(brew.coffee_grams));
+  const water = parseFloat(String(brew.water_grams ?? 0));
+  const ice = brew.ice_grams ?? 0;
+  const total = water + ice;
+  if (total === 0) return "-";
+  return `1:${(total / coffee).toFixed(1)}`;
 }
 
 interface ColoredBarProps {
@@ -152,6 +163,20 @@ export default function AnalyticsPage() {
       .sort((a, b) => b.avg - a.avg);
   }, [beans, allBrews]);
 
+  const bestBrewsByBean = useMemo(() => {
+    const map: Record<number, Brew> = {};
+    for (const bean of beans) {
+      const rated = allBrews.filter(
+        (b) => b.bean_id === bean.id && b.rating !== null,
+      );
+      if (rated.length === 0) continue;
+      map[bean.id] = rated.reduce((best, brew) =>
+        (brew.rating as number) > (best.rating as number) ? brew : best,
+      );
+    }
+    return map;
+  }, [beans, allBrews]);
+
   const ratioChartData = useMemo(
     () =>
       buildChartData(beanBrews, (brew) => {
@@ -176,292 +201,375 @@ export default function AnalyticsPage() {
   const chartData = chartView === "ratio" ? ratioChartData : tempChartData;
 
   const selectedBean = beans.find((b) => b.id === selectedBeanId);
+  const selectedBest = selectedBeanId
+    ? bestBrewsByBean[selectedBeanId]
+    : undefined;
 
   if (loading) return <p className="text-ink/60">Loading...</p>;
   if (error) return <p className="text-red-400">Error: {error}</p>;
 
   return (
     <div>
-      {/* Header + bean selector */}
-      <div className="flex items-end justify-between mb-6">
-        <div>
-          <p className="text-xs text-accent uppercase tracking-wide mb-1">
-            analytics
-          </p>
-          <h1 className="text-xl font-display font-medium">Brew insights</h1>
-        </div>
-        <select
-          value={selectedBeanId ?? ""}
-          onChange={(e) => setSelectedBeanId(Number(e.target.value))}
-          className="rounded-lg px-3 py-2 text-sm bg-surface border border-accent/20 text-ink cursor-pointer"
-          style={{ background: "#3d2a1f" }}
-        >
-          {beans
-            .filter((b) => allBrews.some((brew) => brew.bean_id === b.id))
-            .map((bean) => (
-              <option key={bean.id} value={bean.id}>
-                {bean.name}
-              </option>
-            ))}
-        </select>
+      {/* Header */}
+      <div className="mb-6">
+        <p className="text-xs text-accent uppercase tracking-wide mb-1">
+          analytics
+        </p>
+        <h1 className="text-xl font-display font-medium">Brew insights</h1>
       </div>
 
-      {!selectedBeanId ? (
+      {perBeanAverages.length === 0 ? (
         <p className="text-ink/60 text-sm">
-          No brews logged yet — log a brew to see insights.
+          No rated brews yet — log and rate a brew to see insights.
         </p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* LEFT: main chart — takes 2/3 width */}
-          <div className="md:col-span-2 bg-card rounded-xl p-5">
-            {/* Chart header + toggle */}
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-sm text-card-ink-muted text-accent-roast uppercase font-bold tracking-wide">
-                  {chartView === "ratio"
-                    ? "Coffee:Water ratio vs Rating"
-                    : "Water temp vs Rating"}
-                </p>
-                <p className="text-xs text-card-ink-muted/70 text-accent-strong mt-0.5">
-                  {chartView === "ratio"
-                    ? "Avg rating per ratio bucket · iced brews use total liquid"
-                    : "Avg rating per temperature bucket"}
-                </p>
-              </div>
-              <div className="inline-flex rounded-lg bg-white border border-card-ink-muted/20 p-0.5 gap-0.5">
-                <button
-                  onClick={() => setChartView("ratio")}
-                  className={`px-3 py-1 rounded-md text-xs transition-colors ${
-                    chartView === "ratio"
-                      ? "bg-accent-strong text-ink"
-                      : "text-card-ink-muted"
-                  }`}
-                >
-                  Ratio
-                </button>
-                <button
-                  onClick={() => setChartView("temp")}
-                  className={`px-3 py-1 rounded-md text-xs transition-colors ${
-                    chartView === "temp"
-                      ? "bg-accent-strong text-ink"
-                      : "text-card-ink-muted"
-                  }`}
-                >
-                  Temp
-                </button>
-              </div>
-            </div>
+        <>
+          {/* Compare your beans — full width, drives selection below */}
+          <div className="bg-card rounded-xl p-5 mb-4">
+            <p className="text-sm text-card-ink-muted text-accent-roast uppercase font-sans font-bold tracking-wide">
+              Compare your beans
+            </p>
+            <p className="text-xs text-card-ink-muted/70 text-accent-strong mt-0.5 mb-3">
+              Ranked by average rating &middot; click a bean to see its detail
+              below
+            </p>
 
-            {chartData.length === 0 ? (
-              <div className="flex items-center justify-center h-48 text-card-ink-muted text-sm">
-                Not enough data yet for this view.
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={420}>
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 8, right: 8, left: -16, bottom: 16 }}
+            <ResponsiveContainer
+              width="100%"
+              height={Math.max(perBeanAverages.length * 40, 120)}
+            >
+              <BarChart
+                data={perBeanAverages}
+                layout="vertical"
+                margin={{ top: 4, right: 24, left: 8, bottom: 4 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(139,90,43,0.12)"
+                  horizontal={false}
+                />
+                <XAxis
+                  type="number"
+                  domain={[0, 10]}
+                  tick={{ fontSize: 11, fill: "#6b5d50" }}
+                  axisLine={{ stroke: "#c4b8aa" }}
+                  tickLine={false}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={140}
+                  tick={{ fontSize: 12, fill: "#3d2a1f" }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    background: "#f0e6da",
+                    border: "0.5px solid rgba(139,90,43,0.2)",
+                    borderRadius: 8,
+                    fontSize: 12,
+                    color: "#3d2a1f",
+                  }}
+                  formatter={(value: ValueType | undefined) => {
+                    const num =
+                      typeof value === "number" ? value : Number(value);
+                    return [!isNaN(num) ? `${num}/10` : "—", "Avg rating"];
+                  }}
+                  labelFormatter={(label) => {
+                    const bean = perBeanAverages.find((b) => b.name === label);
+                    return `${label} (${bean?.count ?? 0} brew${bean?.count !== 1 ? "s" : ""})`;
+                  }}
+                />
+                <Bar
+                  dataKey="avg"
+                  radius={[0, 4, 4, 0]}
+                  maxBarSize={22}
+                  onClick={(data) => setSelectedBeanId(data.id)}
+                  cursor="pointer"
                 >
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    stroke="rgba(139,90,43,0.12)"
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 11, fill: "#6b5d50" }}
-                    axisLine={{ stroke: "#c4b8aa" }}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    domain={[0, 10]}
-                    ticks={[0, 2, 4, 6, 8, 10]}
-                    tick={{ fontSize: 11, fill: "#6b5d50" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: "#f0e6da",
-                      border: "0.5px solid rgba(139,90,43,0.2)",
-                      borderRadius: 8,
-                      fontSize: 12,
-                      color: "#3d2a1f",
-                    }}
-                    formatter={(value: ValueType | undefined) => {
-                      const num =
-                        typeof value === "number" ? value : Number(value);
-                      return [!isNaN(num) ? `${num}/10` : "—", "Avg rating"];
-                    }}
-                    labelFormatter={(label) =>
-                      `${label} (${chartData.find((d) => d.label === label)?.count ?? 0} brew${chartData.find((d) => d.label === label)?.count !== 1 ? "s" : ""})`
-                    }
-                  />
-                  <Bar
-                    dataKey="avg"
-                    shape={(props: BarShapeProps) => {
-                      const value = Array.isArray(props.value)
-                        ? props.value[1]
-                        : (props.value ?? 0);
-                      return <ColoredBar {...props} value={value} />;
-                    }}
-                    maxBarSize={80}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+                  {perBeanAverages.map((entry) => (
+                    <Cell
+                      key={entry.id}
+                      fill={
+                        entry.id === selectedBeanId
+                          ? "#6b3a1f"
+                          : barColor(entry.avg)
+                      }
+                      fillOpacity={entry.id === selectedBeanId ? 1 : 0.75}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+
+            {/* Selected bean's best brew — spacious, readable detail card */}
+            {selectedBest && selectedBean && (
+              <div className="mt-4 bg-white/50 rounded-lg p-4 border border-card-ink-muted/10">
+                <p className="text-m font-display font-bold text-accent-roast mb-3">
+                  {selectedBean.name} — best brew ({selectedBest.rating}/10)
+                </p>
+                <div className="grid grid-cols-4 gap-3 mb-2">
+                  <div>
+                    <p className="text-xs text-accent-roast font-semibold mb-0.5">
+                      Temp
+                    </p>
+                    <p className="text-sm font-sans text-accent-strong">
+                      {selectedBest.water_temp_celsius
+                        ? `${selectedBest.water_temp_celsius}°C`
+                        : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-accent-roast font-semibold mb-0.5">
+                      Ratio
+                    </p>
+                    <p className="text-sm font-sans text-accent-strong">
+                      {brewRatio(selectedBest)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-accent-roast font-semibold mb-0.5">
+                      Grind
+                    </p>
+                    <p className="text-sm text-accent-strong">
+                      {selectedBest.grind_size || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-accent-roast font-semibold mb-0.5">
+                      Rating
+                    </p>
+                    <p className="text-sm font-mono text-accent-strong">
+                      {selectedBest.rating}/10
+                    </p>
+                  </div>
+                </div>
+                {selectedBest.notes && (
+                  <p className="text-xs font-sans text-accent-roast italic">
+                    &ldquo;{selectedBest.notes}&rdquo;
+                  </p>
+                )}
+              </div>
             )}
           </div>
 
-          {/* RIGHT: stacked panels — takes 1/3 width */}
-          <div className="flex flex-col gap-4">
-            {/* Quick stats */}
-            <div className="bg-card rounded-xl p-4">
-              <p className="text-xs text-card-ink-muted text-accent-roast uppercase font-bold tracking-wide mb-3">
-                {selectedBean?.name}
-              </p>
-              <div className="grid grid-cols-2 gap-3">
+          {/* Per-bean detail — driven by whichever bean was clicked above */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* LEFT: main chart — takes 2/3 width */}
+            <div className="md:col-span-2 bg-card rounded-xl p-5">
+              <div className="flex items-start justify-between mb-4">
                 <div>
-                  <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
-                    Brews
+                  <p className="text-sm text-card-ink-muted text-accent-roast uppercase font-bold tracking-wide">
+                    {chartView === "ratio"
+                      ? "Coffee:Water ratio vs Rating"
+                      : "Water temp vs Rating"}
                   </p>
-                  <p className="text-2xl font-semibold text-card-ink text-accent-strong font-mono">
-                    {stats.total}
+                  <p className="text-xs text-card-ink-muted/70 text-accent-strong mt-0.5">
+                    {selectedBean?.name} &middot;{" "}
+                    {chartView === "ratio"
+                      ? "avg rating per ratio bucket, iced brews use total liquid"
+                      : "avg rating per temperature bucket"}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
-                    Avg
-                  </p>
-                  <p className="text-2xl font-semibold text-accent-strong font-mono">
-                    {stats.avg > 0 ? stats.avg : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
-                    Best
-                  </p>
-                  <p className="text-2xl font-semibold text-accent-strong font-mono">
-                    {stats.best !== null ? `${stats.best}/10` : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
-                    Iced
-                  </p>
-                  <p className="text-2xl font-semibold text-card-ink text-accent-strong font-mono">
-                    {stats.iced}
-                  </p>
+                <div className="inline-flex rounded-lg bg-white border border-card-ink-muted/20 p-0.5 gap-0.5">
+                  <button
+                    onClick={() => setChartView("ratio")}
+                    className={`px-3 py-1 rounded-md text-xs transition-colors ${
+                      chartView === "ratio"
+                        ? "bg-accent-strong text-ink"
+                        : "text-card-ink-muted"
+                    }`}
+                  >
+                    Ratio
+                  </button>
+                  <button
+                    onClick={() => setChartView("temp")}
+                    className={`px-3 py-1 rounded-md text-xs transition-colors ${
+                      chartView === "temp"
+                        ? "bg-accent-strong text-ink"
+                        : "text-card-ink-muted"
+                    }`}
+                  >
+                    Temp
+                  </button>
                 </div>
               </div>
+
+              {chartData.length === 0 ? (
+                <div className="flex items-center justify-center h-48 text-card-ink-muted text-sm">
+                  Not enough data yet for this view.
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={420}>
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 8, right: 8, left: -16, bottom: 16 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="rgba(139,90,43,0.12)"
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11, fill: "#6b5d50" }}
+                      axisLine={{ stroke: "#c4b8aa" }}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      domain={[0, 10]}
+                      ticks={[0, 2, 4, 6, 8, 10]}
+                      tick={{ fontSize: 11, fill: "#6b5d50" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        background: "#f0e6da",
+                        border: "0.5px solid rgba(139,90,43,0.2)",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        color: "#3d2a1f",
+                      }}
+                      formatter={(value: ValueType | undefined) => {
+                        const num =
+                          typeof value === "number" ? value : Number(value);
+                        return [!isNaN(num) ? `${num}/10` : "—", "Avg rating"];
+                      }}
+                      labelFormatter={(label) =>
+                        `${label} (${chartData.find((d) => d.label === label)?.count ?? 0} brew${chartData.find((d) => d.label === label)?.count !== 1 ? "s" : ""})`
+                      }
+                    />
+                    <Bar
+                      dataKey="avg"
+                      shape={(props: BarShapeProps) => {
+                        const value = Array.isArray(props.value)
+                          ? props.value[1]
+                          : (props.value ?? 0);
+                        return <ColoredBar {...props} value={value} />;
+                      }}
+                      maxBarSize={80}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
             </div>
 
-            {/* Per-bean averages */}
-            <div className="bg-card rounded-xl p-4 flex-1">
-              <p className="text-xs text-card-ink-muted text-accent-roast uppercase font-bold tracking-wide mb-3">
-                Avg rating per bean
-              </p>
-              <div className="flex flex-col gap-2.5">
-                {perBeanAverages.map((bean) => (
-                  <div key={bean.id}>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-xs text-card-ink text-accent-roast truncate max-w-[120px]">
-                        {bean.name}
-                      </span>
-                      <span className="text-xs font-mono text-accent-strong font-semibold">
-                        {bean.avg}
-                      </span>
-                    </div>
-                    <div className="bg-accent/10 rounded h-1.5">
-                      <div
-                        className="rounded h-1.5"
-                        style={{
-                          width: `${(bean.avg / 10) * 100}%`,
-                          background: barColor(bean.avg),
-                        }}
-                      />
-                    </div>
+            {/* RIGHT: quick stats + suggestion */}
+            <div className="flex flex-col gap-4">
+              <div className="bg-card rounded-xl p-4">
+                <p className="text-xs text-card-ink-muted text-accent-roast uppercase font-bold tracking-wide mb-3">
+                  {selectedBean?.name}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
+                      Brews
+                    </p>
+                    <p className="text-2xl font-semibold text-card-ink text-accent-strong font-sans">
+                      {stats.total}
+                    </p>
                   </div>
-                ))}
-                {perBeanAverages.length === 0 && (
+                  <div>
+                    <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
+                      Avg
+                    </p>
+                    <p className="text-2xl font-semibold text-accent-strong font-sans">
+                      {stats.avg > 0 ? stats.avg : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
+                      Best
+                    </p>
+                    <p className="text-2xl font-semibold text-accent-strong font-mono">
+                      {stats.best !== null ? `${stats.best}/10` : "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-card-ink-muted text-accent-roast font-semibold mb-0.5">
+                      Iced
+                    </p>
+                    <p className="text-2xl font-semibold text-card-ink text-accent-strong font-sans">
+                      {stats.iced}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-card rounded-xl p-4 flex-1">
+                <p className="text-xs text-card-ink-muted text-accent-roast uppercase font-semibold tracking-wide mb-3">
+                  Next brew suggestion
+                </p>
+                {suggestion?.suggestion ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-2 mb-2">
+                      {suggestion.suggestion.water_temp_celsius && (
+                        <div>
+                          <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
+                            Temp
+                          </p>
+                          <p className="text-sm text-card-ink text-accent-strong">
+                            {suggestion.suggestion.water_temp_celsius}°C
+                          </p>
+                        </div>
+                      )}
+                      {suggestion.suggestion.coffee_grams && (
+                        <div>
+                          <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
+                            Coffee
+                          </p>
+                          <p className="text-sm text-card-ink text-accent-strong">
+                            {suggestion.suggestion.coffee_grams}g
+                          </p>
+                        </div>
+                      )}
+                      {suggestion.suggestion.water_grams && (
+                        <div>
+                          <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
+                            Water
+                          </p>
+                          <p className="text-sm text-card-ink text-accent-strong">
+                            {suggestion.suggestion.water_grams}ml
+                          </p>
+                        </div>
+                      )}
+                      {suggestion.suggestion.bloom_time_seconds && (
+                        <div>
+                          <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
+                            Bloom
+                          </p>
+                          <p className="text-sm text-card-ink text-accent-strong">
+                            {suggestion.suggestion.bloom_time_seconds}s
+                          </p>
+                        </div>
+                      )}
+                      {suggestion.suggestion.total_time_seconds && (
+                        <div>
+                          <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
+                            Total
+                          </p>
+                          <p className="text-sm text-card-ink text-accent-strong">
+                            {suggestion.suggestion.total_time_seconds}s
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-xs text-card-ink-muted text-accent-strong leading-relaxed">
+                      {suggestion.message}
+                    </p>
+                  </>
+                ) : (
                   <p className="text-xs text-card-ink-muted">
-                    No rated brews yet.
+                    {suggestion?.message ??
+                      "Log a rated brew to get a suggestion."}
                   </p>
                 )}
               </div>
             </div>
-
-            {/* Suggestion */}
-            <div className="bg-card rounded-xl p-4">
-              <p className="text-xs text-card-ink-muted text-accent-roast uppercase font-semibold tracking-wide mb-3">
-                Next brew suggestion
-              </p>
-              {suggestion?.suggestion ? (
-                <>
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                    {suggestion.suggestion.water_temp_celsius && (
-                      <div>
-                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
-                          Temp
-                        </p>
-                        <p className="text-sm font-mono text-card-ink text-accent-strong">
-                          {suggestion.suggestion.water_temp_celsius}°C
-                        </p>
-                      </div>
-                    )}
-                    {suggestion.suggestion.coffee_grams && (
-                      <div>
-                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
-                          Coffee
-                        </p>
-                        <p className="text-sm font-mono text-card-ink text-accent-strong">
-                          {suggestion.suggestion.coffee_grams}g
-                        </p>
-                      </div>
-                    )}
-                    {suggestion.suggestion.water_grams && (
-                      <div>
-                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
-                          Water
-                        </p>
-                        <p className="text-sm font-mono text-card-ink text-accent-strong">
-                          {suggestion.suggestion.water_grams}ml
-                        </p>
-                      </div>
-                    )}
-                    {suggestion.suggestion.bloom_time_seconds && (
-                      <div>
-                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
-                          Bloom
-                        </p>
-                        <p className="text-sm font-mono text-card-ink text-accent-strong">
-                          {suggestion.suggestion.bloom_time_seconds}s
-                        </p>
-                      </div>
-                    )}
-                    {suggestion.suggestion.total_time_seconds && (
-                      <div>
-                        <p className="text-xs text-card-ink-muted text-accent-roast mb-0.5">
-                          Total
-                        </p>
-                        <p className="text-sm font-mono text-card-ink text-accent-strong">
-                          {suggestion.suggestion.total_time_seconds}s
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-card-ink-muted text-accent-strong leading-relaxed">
-                    {suggestion.message}
-                  </p>
-                </>
-              ) : (
-                <p className="text-xs text-card-ink-muted">
-                  {suggestion?.message ??
-                    "Log a rated brew to get a suggestion."}
-                </p>
-              )}
-            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
