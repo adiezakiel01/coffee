@@ -285,7 +285,9 @@ export default function AnalyticsPage() {
                   dataKey="avg"
                   radius={[0, 4, 4, 0]}
                   maxBarSize={22}
-                  onClick={(data) => setSelectedBeanId(data.id)}
+                  onClick={(_data, index) =>
+                    setSelectedBeanId(perBeanAverages[index].id)
+                  }
                   cursor="pointer"
                 >
                   {perBeanAverages.map((entry) => (
