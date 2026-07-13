@@ -105,7 +105,7 @@ export default function FlavorPicker({ value, onChange }: FlavorPickerProps) {
   return (
     <div>
       <label className="text-xs text-card-ink-muted text-accent-roast font-bold block mb-1.5">
-        Flavor tags
+        Flavor Profiles
       </label>
 
       {/* Selected tags */}
