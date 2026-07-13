@@ -100,7 +100,7 @@ export default function BeanDetailModal({
                   key={brew.id}
                   className="flex items-center justify-between text-xs"
                 >
-                  <span className="font-mono text-card-ink-muted">
+                  <span className="font-display text-card-ink-muted">
                     {new Date(brew.brewed_at).toLocaleDateString()}
                   </span>
                   <span className="text-card-ink">
