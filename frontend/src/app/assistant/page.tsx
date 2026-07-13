@@ -15,8 +15,9 @@ const ASSISTANT_ENABLED = process.env.NEXT_PUBLIC_ASSISTANT_ENABLED === "true";
 
 const SUGGESTED_QUESTIONS = [
   "What has worked well for my best-rated bean?",
+  "Which of my beans am I most consistent at brewing well?",
   "Which of my beans tends to brew better iced?",
-  "What's been inconsistent across my recent brews?",
+  "What should I try differently on my next brew?",
 ];
 
 export default function AssistantPage() {
