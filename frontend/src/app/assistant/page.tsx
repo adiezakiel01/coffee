@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { chatApi } from "@/lib/api";
 import { generateSessionId } from "@/lib/utils";
-import { Coffee, MessagesSquare } from "lucide-react";
+import {
+  Coffee,
+  MessagesSquare,
+  Clipboard as ClipboardIcon,
+  Download,
+  Check,
+} from "lucide-react";
 
 interface Message {
   role: "user" | "assistant";
@@ -19,6 +25,96 @@ const SUGGESTED_QUESTIONS = [
   "Which of my beans tends to brew better iced?",
   "What should I try differently on my next brew?",
 ];
+
+function ExportDigest() {
+  const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState<"copy" | "download" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleCopy() {
+    setLoading("copy");
+    setError(null);
+    try {
+      const { digest } = await chatApi.digest();
+      await navigator.clipboard.writeText(digest);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch digest");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function handleDownload() {
+    setLoading("download");
+    setError(null);
+    try {
+      const { digest } = await chatApi.digest();
+      const blob = new Blob([digest], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "brew-summary.md";
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch digest");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center px-4">
+      <div className="text-4xl mb-4">
+        <Coffee size={60} />
+      </div>
+      <h2 className="text-lg font-medium text-ink mb-2">
+        Assistant available locally
+      </h2>
+      <p className="text-sm text-ink/60 max-w-sm leading-relaxed mb-6">
+        The brew assistant runs on your local machine via Ollama to keep your
+        brew data completely private. Run the app locally to use it.
+      </p>
+
+      <div className="w-full max-w-sm h-px bg-ink/10 mb-6" />
+
+      <p className="text-xs text-accent uppercase tracking-wide mb-2">
+        Or, take your data elsewhere
+      </p>
+      <p className="text-xs text-ink/50 max-w-sm leading-relaxed mb-4">
+        Export a summary of your beans and brews to paste into any AI assistant
+        you already trust.
+      </p>
+
+      {error && <p className="text-red-400 text-xs mb-3">{error}</p>}
+
+      <div className="flex flex-col gap-2 w-full max-w-xs">
+        <button
+          onClick={handleCopy}
+          disabled={loading !== null}
+          className="bg-accent-strong text-ink rounded-xl px-5 py-2.5 text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {copied ? <Check size={15} /> : <ClipboardIcon size={15} />}
+          {copied
+            ? "Copied!"
+            : loading === "copy"
+              ? "Copying..."
+              : "Copy brew summary"}
+        </button>
+        <button
+          onClick={handleDownload}
+          disabled={loading !== null}
+          className="bg-transparent border border-accent/30 text-accent rounded-xl px-5 py-2.5 text-sm font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          <Download size={15} />
+          {loading === "download" ? "Preparing..." : "Download brew-summary.md"}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -80,20 +176,7 @@ export default function AssistantPage() {
   }
 
   if (!ASSISTANT_ENABLED) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full min-h-[60vh] text-center px-4">
-        <div className="text-4xl mb-4">
-          <Coffee size={60} />
-        </div>
-        <h2 className="text-lg font-medium text-ink mb-2">
-          Assistant available locally
-        </h2>
-        <p className="text-sm text-ink/60 max-w-sm leading-relaxed">
-          The brew assistant runs on your local machine via Ollama to keep your
-          brew data completely private. Run the app locally to use it.
-        </p>
-      </div>
-    );
+    return <ExportDigest />;
   }
 
   return (

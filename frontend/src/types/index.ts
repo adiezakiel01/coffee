@@ -101,6 +101,9 @@ export interface SuggestionResult {
   based_on_brew_id: number | null;
   message: string;
 }
+export interface DigestResponse {
+  digest: string;
+}
 export interface ChatRequest {
   session_id: string;
   message: string;

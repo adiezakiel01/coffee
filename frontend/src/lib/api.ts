@@ -11,6 +11,7 @@ import type {
   SuggestionResult,
   ChatRequest,
   ChatResponse,
+  DigestResponse,
 } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -86,4 +87,5 @@ export const chatApi = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  digest: () => apiFetch<DigestResponse>("/chat/digest"),
 };

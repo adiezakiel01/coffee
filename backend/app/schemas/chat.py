@@ -9,3 +9,7 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     session_id: str
     response: str
+
+
+class DigestResponse(BaseModel):
+    digest: str
