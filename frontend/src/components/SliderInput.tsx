@@ -117,7 +117,7 @@ export default function WheelPicker({
   const itemText = compact ? "text-xs" : "text-sm";
 
   return (
-    <div ref={wrapperRef} className="relative">
+    <div ref={wrapperRef} className="relative w-full">
       {label && (
         <label className="text-xs text-card-ink-muted block mb-1">
           {label}
@@ -126,7 +126,7 @@ export default function WheelPicker({
 
       <div
         onClick={togglePicker}
-        className={`flex items-center justify-between ${pillHeight} ${pillPadding} rounded-lg bg-white border border-card-ink-muted/20 cursor-pointer`}
+        className={`w-full flex items-center justify-between ${pillHeight} ${pillPadding} rounded-lg bg-white border border-card-ink-muted/20 cursor-pointer`}
       >
         <span className={`font-mono ${pillText} text-card-ink`}>
           {displayValue}

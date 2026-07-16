@@ -73,6 +73,14 @@ export const FLAVOR_CATEGORIES: Record<string, FlavorCategory> = {
       Roasted: ["Smoky", "Toasted", "Ashy", "Burnt"],
     },
   },
+  other: {
+    label: "Others",
+    color: "#5a6b6b",
+    subcategories: {
+      "Papery/Musty": ["Musty", "Cardboard", "Stale", "Woody"],
+      Chemical: ["Rubber", "Medicinal", "Petroleum", "Salty", "Bitter"],
+    },
+  },
 };
 
 interface FlavorPickerProps {

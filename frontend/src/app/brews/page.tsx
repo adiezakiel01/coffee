@@ -253,6 +253,45 @@ export default function BrewsPage() {
 
       {/* Brew logger form */}
       <form onSubmit={handleCreate} className="bg-card rounded-xl p-5 mb-8">
+        {/* Bean + grind */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+          <label className="text-xs text-card-ink-muted block text-accent-roast font-semibold">
+            Beans
+          </label>
+          <select
+            value={form.bean_id ?? ""}
+            onChange={(e) => handleBeanSelectChange(e.target.value)}
+            className="rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
+          >
+            <option value="">No bean selected</option>
+            {beans.map((bean) => (
+              <option key={bean.id} value={bean.id}>
+                {bean.name}
+              </option>
+            ))}
+            <option value="__new__">+ New bean...</option>
+          </select>
+
+          <label className="text-xs text-card-ink-muted block text-accent-roast font-semibold">
+            Grind Size
+          </label>
+
+          <select
+            value={form.grind_size ?? ""}
+            onChange={(e) =>
+              setForm({ ...form, grind_size: e.target.value || null })
+            }
+            className="rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
+          >
+            <option value="">Select grind size</option>
+            {GRIND_SIZES.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Brew type toggle */}
         <div className="mb-4">
           <label className="text-xs text-card-ink-muted block text-accent-roast font-semibold mb-1.5">
@@ -276,38 +315,6 @@ export default function BrewsPage() {
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Bean + grind */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <select
-            value={form.bean_id ?? ""}
-            onChange={(e) => handleBeanSelectChange(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
-          >
-            <option value="">No bean selected</option>
-            {beans.map((bean) => (
-              <option key={bean.id} value={bean.id}>
-                {bean.name}
-              </option>
-            ))}
-            <option value="__new__">+ New bean...</option>
-          </select>
-
-          <select
-            value={form.grind_size ?? ""}
-            onChange={(e) =>
-              setForm({ ...form, grind_size: e.target.value || null })
-            }
-            className="rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
-          >
-            <option value="">Select grind size</option>
-            {GRIND_SIZES.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
         </div>
 
         {/* Filter type toggle */}
@@ -341,15 +348,6 @@ export default function BrewsPage() {
         {/* Numeric fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 text-accent-roast font-semibold gap-4 mb-4">
           <WheelPicker
-            label="Water temp"
-            value={form.water_temp_celsius ?? undefined}
-            onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
-            min={80}
-            max={98}
-            step={0.5}
-            unit="°C"
-          />
-          <WheelPicker
             label="Coffee"
             value={form.coffee_grams ?? undefined}
             onChange={(v) => setForm({ ...form, coffee_grams: v })}
@@ -357,6 +355,15 @@ export default function BrewsPage() {
             max={40}
             step={0.5}
             unit="g"
+          />
+          <WheelPicker
+            label="Water temp"
+            value={form.water_temp_celsius ?? undefined}
+            onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
+            min={80}
+            max={98}
+            step={0.5}
+            unit="°C"
           />
 
           {/* Liquid: water + ice grouped */}
@@ -399,15 +406,6 @@ export default function BrewsPage() {
           </div>
 
           <WheelPicker
-            label="Rating"
-            value={form.rating ?? undefined}
-            onChange={(v) => setForm({ ...form, rating: v })}
-            min={1}
-            max={10}
-            step={1}
-            unit="/10"
-          />
-          <WheelPicker
             label="Bloom time"
             value={form.bloom_time_seconds ?? undefined}
             onChange={(v) => setForm({ ...form, bloom_time_seconds: v })}
@@ -424,6 +422,15 @@ export default function BrewsPage() {
             max={420}
             step={10}
             unit="s"
+          />
+          <WheelPicker
+            label="Rating"
+            value={form.rating ?? undefined}
+            onChange={(v) => setForm({ ...form, rating: v })}
+            min={1}
+            max={10}
+            step={1}
+            unit="/10"
           />
         </div>
 
