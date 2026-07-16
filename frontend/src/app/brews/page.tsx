@@ -255,7 +255,7 @@ export default function BrewsPage() {
       <form onSubmit={handleCreate} className="bg-card rounded-xl p-5 mb-8">
         {/* Bean + grind */}
         <div className="mb-4">
-          <label className="text-xs text-card-ink-muted text-accent-roast font-bold block mb-1.5">
+          <label className="text-xs text-card-ink-muted text-accent-roast font-semibold block mb-1.5">
             Beans
           </label>
           <select
@@ -357,55 +357,57 @@ export default function BrewsPage() {
             step={0.5}
             unit="g"
           />
-          <WheelPicker
-            label="Water temp"
-            value={form.water_temp_celsius ?? undefined}
-            onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
-            min={80}
-            max={98}
-            step={0.5}
-            unit="°C"
-          />
+        </div>
 
-          {/* Liquid: water + ice grouped */}
-          <div className="col-span-2">
-            <div
-              className={`grid gap-3 ${form.brew_type === "iced" ? "grid-cols-2" : "grid-cols-1"}`}
-            >
+        {/* Liquid: water + ice grouped */}
+        <div className="w-full text-accent-roast font-semibold mb-4">
+          <div
+            className={`grid gap-3 ${form.brew_type === "iced" ? "grid-cols-3" : "grid-cols-2"}`}
+          >
+            <WheelPicker
+              label="Water"
+              value={form.water_grams ?? undefined}
+              onChange={(v) => setForm({ ...form, water_grams: v })}
+              min={50}
+              max={600}
+              step={5}
+              unit="ml"
+            />
+            {form.brew_type === "iced" && (
               <WheelPicker
-                label="Water"
-                value={form.water_grams ?? undefined}
-                onChange={(v) => setForm({ ...form, water_grams: v })}
-                min={50}
-                max={600}
-                step={5}
-                unit="ml"
+                label="Ice"
+                value={form.ice_grams ?? undefined}
+                onChange={(v) => setForm({ ...form, ice_grams: v ?? null })}
+                min={0}
+                max={300}
+                step={10}
+                unit="g"
               />
-              {form.brew_type === "iced" && (
-                <WheelPicker
-                  label="Ice"
-                  value={form.ice_grams ?? undefined}
-                  onChange={(v) => setForm({ ...form, ice_grams: v ?? null })}
-                  min={0}
-                  max={300}
-                  step={10}
-                  unit="g"
-                />
-              )}
-            </div>
-            {form.brew_type === "iced" &&
-              form.water_grams !== undefined &&
-              form.ice_grams !== null &&
-              form.ice_grams !== undefined && (
-                <p className="text-xs text-card-ink-muted mt-1.5">
-                  Total liquid:{" "}
-                  <span className="font-mono text-card-ink">
-                    {(form.water_grams ?? 0) + (form.ice_grams ?? 0)}ml
-                  </span>
-                </p>
-              )}
+            )}
+            <WheelPicker
+              label="Water temp"
+              value={form.water_temp_celsius ?? undefined}
+              onChange={(v) => setForm({ ...form, water_temp_celsius: v })}
+              min={80}
+              max={98}
+              step={0.5}
+              unit="°C"
+            />
           </div>
+          {form.brew_type === "iced" &&
+            form.water_grams !== undefined &&
+            form.ice_grams !== null &&
+            form.ice_grams !== undefined && (
+              <p className="text-xs text-card-ink-muted mt-1.5">
+                Total liquid:{" "}
+                <span className="font-mono text-card-ink">
+                  {(form.water_grams ?? 0) + (form.ice_grams ?? 0)}ml
+                </span>
+              </p>
+            )}
+        </div>
 
+        <div className="grid grid-cols-2 gap-4 w-full text-accent-roast font-semibold mb-4">
           <WheelPicker
             label="Bloom time"
             value={form.bloom_time_seconds ?? undefined}
@@ -424,6 +426,8 @@ export default function BrewsPage() {
             step={10}
             unit="s"
           />
+        </div>
+        <section className="mb-4 text-accent-roast font-semibold">
           <WheelPicker
             label="Rating"
             value={form.rating ?? undefined}
@@ -433,7 +437,7 @@ export default function BrewsPage() {
             step={1}
             unit="/10"
           />
-        </div>
+        </section>
 
         {/* Flavor tags */}
         <div className="mb-4">
@@ -445,7 +449,7 @@ export default function BrewsPage() {
 
         {/* Free-text notes — process observations, e.g. "too diluted", "grounds too coarse" */}
         <div className="mb-4">
-          <label className="text-xs text-card-ink-muted text-accent-roast font-bold block mb-1.5">
+          <label className="text-xs text-card-ink-muted text-accent-roast font-semibold block mb-1.5">
             Notes
           </label>
           <input
