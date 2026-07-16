@@ -254,14 +254,14 @@ export default function BrewsPage() {
       {/* Brew logger form */}
       <form onSubmit={handleCreate} className="bg-card rounded-xl p-5 mb-8">
         {/* Bean + grind */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <label className="text-xs text-card-ink-muted block text-accent-roast font-semibold">
+        <div className="mb-4">
+          <label className="text-xs text-card-ink-muted text-accent-roast font-bold block mb-1.5">
             Beans
           </label>
           <select
             value={form.bean_id ?? ""}
             onChange={(e) => handleBeanSelectChange(e.target.value)}
-            className="rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
+            className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
           >
             <option value="">No bean selected</option>
             {beans.map((bean) => (
@@ -271,8 +271,9 @@ export default function BrewsPage() {
             ))}
             <option value="__new__">+ New bean...</option>
           </select>
-
-          <label className="text-xs text-card-ink-muted block text-accent-roast font-semibold">
+        </div>
+        <div className="mb-4">
+          <label className="text-xs text-card-ink-muted block text-accent-roast font-semibold mb-1.5">
             Grind Size
           </label>
 
@@ -281,7 +282,7 @@ export default function BrewsPage() {
             onChange={(e) =>
               setForm({ ...form, grind_size: e.target.value || null })
             }
-            className="rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
+            className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20"
           >
             <option value="">Select grind size</option>
             {GRIND_SIZES.map((size) => (
