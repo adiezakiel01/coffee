@@ -70,8 +70,13 @@ export default function Sidebar() {
     };
 
     checkMobile();
+    window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (isMobile) setCollapsed(true);
+  }, [pathname]);
 
   function toggleCollapsed() {
     if (isMobile) {
@@ -85,14 +90,8 @@ export default function Sidebar() {
     });
   }
 
-  return (
-    <nav
-      className="flex-shrink-0 flex flex-col py-6 transition-all duration-200"
-      style={{
-        width: collapsed ? 56 : 208,
-        background: "linear-gradient(180deg, #382e27 0%, #6b4530 100%)",
-      }}
-    >
+  const navContent = (
+    <>
       <div
         className={`flex items-center border-b border-accent/15 mb-2 pb-5 ${
           collapsed ? "justify-center px-0" : "justify-between px-5"
@@ -115,12 +114,10 @@ export default function Sidebar() {
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </div>
-
       <div className="flex flex-col py-1">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           const iconClass = isActive ? "text-ink" : "text-ink/55";
-
           return (
             <Link
               key={item.href}
@@ -146,6 +143,52 @@ export default function Sidebar() {
           );
         })}
       </div>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        <nav
+          className="flex-shrink-0 flex flex-col py-6 transition-all duration-200"
+          style={{
+            width: 56,
+            background: "linear-gradient(180deg, #382e27 0%, #6b4530 100%)",
+          }}
+        >
+          {collapsed && navContent}
+        </nav>
+
+        {!collapsed && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/50 z-40"
+              onClick={() => setCollapsed(true)}
+            />
+            <nav
+              className="fixed left-0 top-0 bottom-0 flex flex-col py-6 z-50 transition-all duration-200"
+              style={{
+                width: 208,
+                background: "linear-gradient(180deg, #382e27 0%, #6b4530 100%)",
+              }}
+            >
+              {navContent}
+            </nav>
+          </>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <nav
+      className="flex-shrink-0 flex flex-col py-6 transition-all duration-200"
+      style={{
+        width: collapsed ? 56 : 208,
+        background: "linear-gradient(180deg, #382e27 0%, #6b4530 100%)",
+      }}
+    >
+      {navContent}
     </nav>
   );
 }
