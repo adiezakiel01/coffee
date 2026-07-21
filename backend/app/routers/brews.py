@@ -10,9 +10,8 @@ from app.schemas.brew import BrewCreate, BrewUpdate, BrewResponse
 
 router = APIRouter(prefix="/brews", tags=["brews"])
 
-router.post("", response_model=BrewResponse, status_code=status.HTTP_201_CREATED)
 
-
+@router.post("", response_model=BrewResponse, status_code=status.HTTP_201_CREATED)
 async def create_brew(brew_data: BrewCreate, db: AsyncSession = Depends(get_db)):
     if brew_data.bean_id is not None:
         bean = await db.get(Bean, brew_data.bean_id)
