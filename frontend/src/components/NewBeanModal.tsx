@@ -1,9 +1,7 @@
 "use client";
-
 import { useState } from "react";
 import { beansApi } from "@/lib/api";
 import type { Bean } from "@/types";
-
 const CONTINENTS = [
   "Africa",
   "Asia-Pacific",
@@ -12,12 +10,10 @@ const CONTINENTS = [
   "North America",
   "Middle East",
 ];
-
 interface NewBeanModalProps {
   onClose: () => void;
   onCreated: (bean: Bean) => void;
 }
-
 export default function NewBeanModal({
   onClose,
   onCreated,
@@ -26,9 +22,9 @@ export default function NewBeanModal({
   const [origin, setOrigin] = useState("");
   const [continent, setContinent] = useState("");
   const [process, setProcess] = useState("");
+  const [roastDate, setRoastDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
@@ -43,6 +39,7 @@ export default function NewBeanModal({
         origin: origin || null,
         continent: continent || null,
         process: process || null,
+        roast_date: roastDate || null,
       });
       onCreated(bean);
     } catch (err) {
@@ -51,7 +48,6 @@ export default function NewBeanModal({
       setSubmitting(false);
     }
   }
-
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
@@ -64,9 +60,7 @@ export default function NewBeanModal({
         <h3 className="text-card-ink font-medium mb-3 text-accent-roast">
           New bean
         </h3>
-
         {error && <p className="text-red-700 text-xs mb-2">{error}</p>}
-
         <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
           <input
             type="text"
@@ -102,7 +96,17 @@ export default function NewBeanModal({
             onChange={(e) => setProcess(e.target.value)}
             className="rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-roast border border-card-ink-muted/20"
           />
-
+          <div>
+            <label className="text-xs text-accent-roast block mb-1">
+              Roast date (optional — creates this bean&apos;s first bag)
+            </label>
+            <input
+              type="date"
+              value={roastDate}
+              onChange={(e) => setRoastDate(e.target.value)}
+              className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-roast border border-card-ink-muted/20"
+            />
+          </div>
           <div className="flex gap-2 mt-2">
             <button
               type="submit"

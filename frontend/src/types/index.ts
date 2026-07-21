@@ -39,9 +39,24 @@ export interface BeanUpdate {
   tasting_notes?: string | null;
   roast_date?: string | null;
 }
+export interface Bag {
+  id: number;
+  bean_id: number;
+  roast_date: string | null;
+  created_at: string;
+}
+export interface BagWithStats extends Bag {
+  brew_count: number;
+  avg_rating: number | null;
+}
+export interface BagCreate {
+  bean_id: number;
+  roast_date?: string | null;
+}
 export interface Brew {
   id: number;
   bean_id: number | null;
+  bag_id: number | null;
   brewed_at: string;
   grind_size: string | null;
   water_temp_celsius: string | null;
@@ -59,6 +74,7 @@ export interface Brew {
 }
 export interface BrewCreate {
   bean_id?: number | null;
+  bag_id?: number | null;
   grind_size?: string | null;
   water_temp_celsius?: number | null;
   coffee_grams?: number | null;

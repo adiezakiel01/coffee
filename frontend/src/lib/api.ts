@@ -12,6 +12,9 @@ import type {
   ChatRequest,
   ChatResponse,
   DigestResponse,
+  Bag,
+  BagCreate,
+  BagWithStats,
 } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -88,4 +91,12 @@ export const chatApi = {
       body: JSON.stringify(data),
     }),
   digest: () => apiFetch<DigestResponse>("/chat/digest"),
+};
+export const bagsApi = {
+  listForBean: (beanId: number) =>
+    apiFetch<BagWithStats[]>(`/beans/${beanId}/bags`),
+  create: (data: BagCreate) =>
+    apiFetch<Bag>("/bags", { method: "POST", body: JSON.stringify(data) }),
+  delete: (bagId: number) =>
+    apiFetch<void>(`/bags/${bagId}`, { method: "DELETE" }),
 };
