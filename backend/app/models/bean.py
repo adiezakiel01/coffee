@@ -6,6 +6,7 @@ from app.database import Base
 
 if TYPE_CHECKING:
     from app.models.brew import Brew
+    from app.models.bag import Bag
 
 
 class Bean(Base):
@@ -24,3 +25,6 @@ class Bean(Base):
     roast_date: Mapped[date | None] = mapped_column(Date)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     brews: Mapped[list["Brew"]] = relationship("Brew", back_populates="bean")
+    bags: Mapped[list["Bag"]] = relationship(
+        "Bag", back_populates="bean", cascade="all, delete-orphan"
+    )

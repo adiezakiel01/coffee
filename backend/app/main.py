@@ -5,7 +5,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.database import engine
 from app.limiter import limiter
-from app.routers import beans, brews, brew_parameters, analytics, chat
+from app.routers import beans, brews, brew_parameters, analytics, chat, bags
 
 
 @asynccontextmanager
@@ -43,6 +43,7 @@ app.include_router(brews.router)
 app.include_router(brew_parameters.router)
 app.include_router(analytics.router)
 app.include_router(chat.router)
+app.include_router(bags.router)
 
 
 @app.get("/health")

@@ -16,6 +16,7 @@ from app.database import Base
 if TYPE_CHECKING:
     from app.models.bean import Bean
     from app.models.brew_parameter import BrewParameter
+    from app.models.bag import Bag
 
 
 class Brew(Base):
@@ -35,6 +36,9 @@ class Brew(Base):
     total_time_seconds: Mapped[int | None] = mapped_column(Integer)
     notes: Mapped[str | None] = mapped_column(Text)
     flavor_tags: Mapped[list[str] | None] = mapped_column(ARRAY(String))
+    bag_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("bags.id", ondelete="SET NULL")
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=datetime.utcnow
     )
@@ -43,6 +47,7 @@ class Brew(Base):
     filter_type: Mapped[str | None] = mapped_column(String(20))
     ice_grams: Mapped[int | None] = mapped_column(Integer)
     bean: Mapped["Bean | None"] = relationship("Bean", back_populates="brews")
+    bag: Mapped["Bag | None"] = relationship("Bag", back_populates="brews")
     parameters: Mapped[list["BrewParameter"]] = relationship(
         "BrewParameter", back_populates="brew", cascade="all, delete-orphan"
     )

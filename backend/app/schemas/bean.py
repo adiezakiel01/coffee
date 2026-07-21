@@ -13,11 +13,10 @@ class BeanBase(BaseModel):
     altitude: str | None = Field(None, max_length=255)
     process: str | None = Field(None, max_length=255)
     tasting_notes: str | None = None
-    roast_date: date | None = None
 
 
 class BeanCreate(BeanBase):
-    pass
+    roast_date: date | None = None
 
 
 class BeanUpdate(BeanBase):
@@ -31,7 +30,6 @@ class BeanUpdate(BeanBase):
     altitude: str | None = Field(None, max_length=255)
     process: str | None = Field(None, max_length=255)
     tasting_notes: str | None = None
-    roast_date: date | None = None
 
 
 class BeanResponse(BeanBase):

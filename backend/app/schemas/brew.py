@@ -14,6 +14,7 @@ class BrewBase(BaseModel):
     rating: int | None = Field(None, ge=1, le=10)
     notes: str | None = None
     flavor_tags: list[str] | None = None
+    bag_id: int | None = None
     brew_type: str | None = Field(None, max_length=10)
     filter_type: str | None = Field(None, max_length=20)
     ice_grams: int | None = None
@@ -34,6 +35,7 @@ class BrewUpdate(BaseModel):
     rating: int | None = Field(None, ge=1, le=10)
     notes: str | None = None
     flavor_tags: list[str] | None = None
+    bag_id: int | None = None
     brew_type: str | None = Field(None, max_length=10)
     filter_type: str | None = Field(None, max_length=20)
     ice_grams: int | None = None
