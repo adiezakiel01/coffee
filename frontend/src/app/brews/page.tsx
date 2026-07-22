@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { beansApi, brewsApi } from "@/lib/api";
-import type { Bean, Brew, BrewCreate } from "@/types";
+import { beansApi, brewsApi, bagsApi } from "@/lib/api";
+import type { Bean, Brew, BrewCreate, BagWithStats } from "@/types";
 import WheelPicker from "@/components/SliderInput";
 import NewBeanModal from "@/components/NewBeanModal";
+import NewBagModal from "@/components/NewBagModal";
 import FlavorPicker from "@/components/FlavorPicker";
 import { Snowflake } from "lucide-react";
 
@@ -20,6 +21,7 @@ const GRIND_SIZES = [
 
 const emptyForm: BrewCreate = {
   bean_id: null,
+  bag_id: null,
   grind_size: "",
   water_temp_celsius: undefined,
   coffee_grams: undefined,
@@ -38,6 +40,7 @@ interface BrewEditForm {
   rating?: number | null;
   notes?: string | null;
   flavor_tags?: string[] | null;
+  bag_id?: number | null;
   grind_size?: string | null;
   water_temp_celsius?: number;
   coffee_grams?: number;
@@ -47,6 +50,15 @@ interface BrewEditForm {
 type SortOption = "newest" | "oldest" | "rating_desc" | "rating_asc";
 type BrewTypeFilter = "all" | "hot" | "iced";
 
+function formatRoastDate(dateStr: string | null): string {
+  if (!dateStr) return "Unknown roast date";
+  return new Date(dateStr).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export default function BrewsPage() {
   const [beans, setBeans] = useState<Bean[]>([]);
   const [brews, setBrews] = useState<Brew[]>([]);
@@ -55,6 +67,7 @@ export default function BrewsPage() {
   const [form, setForm] = useState<BrewCreate>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [showNewBeanModal, setShowNewBeanModal] = useState(false);
+  const [showNewBagModal, setShowNewBagModal] = useState(false);
 
   const [beanFilter, setBeanFilter] = useState<string>("all");
   const [brewTypeFilter, setBrewTypeFilter] = useState<BrewTypeFilter>("all");
@@ -62,6 +75,10 @@ export default function BrewsPage() {
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<BrewEditForm>({});
+
+  const [formBags, setFormBags] = useState<BagWithStats[]>([]);
+  const [loadingFormBags, setLoadingFormBags] = useState(false);
+  const [editBags, setEditBags] = useState<BagWithStats[]>([]);
 
   /*const [brewType, setBrewType] = useState<"hot" | "iced">("hot");
   const [filterType, setFilterType] = useState<"cone" | "flat">("cone");
@@ -88,6 +105,26 @@ export default function BrewsPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!form.bean_id) {
+      setFormBags([]);
+      return;
+    }
+    setLoadingFormBags(true);
+    bagsApi
+      .listForBean(form.bean_id)
+      .then((bags) => {
+        setFormBags(bags);
+        if (bags.length > 0 && !bags.some((b) => b.id === form.bag_id)) {
+          setForm((prev) => ({ ...prev, bag_id: bags[0].id }));
+        } else if (bags.length === 0) {
+          setForm((prev) => ({ ...prev, bag_id: null }));
+        }
+      })
+      .catch(() => setFormBags([]))
+      .finally(() => setLoadingFormBags(false));
+  }, [form.bean_id]);
 
   function beanName(beanId: number | null): string {
     if (beanId === null) return "-";
@@ -168,10 +205,26 @@ export default function BrewsPage() {
     setForm({ ...form, bean_id: value ? Number(value) : null });
   }
 
+  function handleBagSelectChange(value: string) {
+    if (value === "__new__") {
+      setShowNewBagModal(true);
+      return;
+    }
+    setForm({ ...form, bag_id: value ? Number(value) : null });
+  }
+
   function handleBeanCreated(bean: Bean) {
     setBeans((prev) => [...prev, bean]);
     setForm({ ...form, bean_id: bean.id });
     setShowNewBeanModal(false);
+  }
+
+  function handleBagCreated(bag: { id: number }) {
+    if (form.bean_id) {
+      bagsApi.listForBean(form.bean_id).then(setFormBags);
+    }
+    setForm((prev) => ({ ...prev, bag_id: bag.id }));
+    setShowNewBagModal(false);
   }
 
   async function handleCreate(e: React.FormEvent) {
@@ -182,6 +235,7 @@ export default function BrewsPage() {
       const payload: BrewCreate = {
         ...form,
         bean_id: form.bean_id || null,
+        bag_id: form.bag_id || null,
         grind_size: form.grind_size || null,
         notes: form.notes || null,
         flavor_tags:
@@ -195,6 +249,7 @@ export default function BrewsPage() {
       const newBrew = await brewsApi.create(payload);
       setBrews((prev) => [newBrew, ...prev]);
       setForm(emptyForm);
+      setFormBags([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create brew");
     } finally {
@@ -208,6 +263,7 @@ export default function BrewsPage() {
       rating: brew.rating,
       notes: brew.notes,
       flavor_tags: brew.flavor_tags,
+      bag_id: brew.bag_id,
       grind_size: brew.grind_size,
       water_temp_celsius: brew.water_temp_celsius
         ? parseFloat(brew.water_temp_celsius)
@@ -217,6 +273,14 @@ export default function BrewsPage() {
         : undefined,
       water_grams: brew.water_grams ? parseFloat(brew.water_grams) : undefined,
     });
+    if (brew.bean_id) {
+      bagsApi
+        .listForBean(brew.bean_id)
+        .then(setEditBags)
+        .catch(() => setEditBags([]));
+    } else {
+      setEditBags([]);
+    }
   }
   async function saveEdit(brewId: number) {
     try {
@@ -272,6 +336,31 @@ export default function BrewsPage() {
             <option value="__new__">+ New bean...</option>
           </select>
         </div>
+
+        {/* bag components*/}
+        {form.bean_id && (
+          <div className="mb-4">
+            <select
+              value={form.bag_id ?? ""}
+              onChange={(e) => handleBagSelectChange(e.target.value)}
+              disabled={loadingFormBags}
+              className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-roast text-card-ink border border-card-ink-muted/20 disabled:opacity-50"
+            >
+              {formBags.length === 0 ? (
+                <option value="">No bag selected</option>
+              ) : (
+                formBags.map((bag) => (
+                  <option key={bag.id} value={bag.id}>
+                    {formatRoastDate(bag.roast_date)} · {bag.brew_count} brew
+                    {bag.brew_count !== 1 ? "s" : ""}
+                  </option>
+                ))
+              )}
+              <option value="__new__">+ New bag...</option>
+            </select>
+          </div>
+        )}
+
         <div className="mb-4">
           <label className="text-xs text-card-ink-muted block text-accent-roast font-semibold mb-1.5">
             Grind Size
@@ -576,6 +665,33 @@ export default function BrewsPage() {
               {/* Parameters grid */}
               {isEditing ? (
                 <div className="grid grid-cols-2 text-accent-roast gap-3 mb-3">
+                  {editBags.length > 0 && (
+                    <div className="col-span-2">
+                      <label className="text-xs text-card-ink-muted block mb-1">
+                        Bag
+                      </label>
+                      <select
+                        value={editForm.bag_id ?? ""}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            bag_id: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          })
+                        }
+                        className="w-full rounded-lg px-2 py-1.5 text-xs bg-white border border-card-ink-muted/20 text-card-ink"
+                      >
+                        <option value="">No bag selected</option>
+                        {editBags.map((bag) => (
+                          <option key={bag.id} value={bag.id}>
+                            {formatRoastDate(bag.roast_date)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   <WheelPicker
                     label="Water temp"
                     compact
@@ -799,6 +915,15 @@ export default function BrewsPage() {
         <NewBeanModal
           onClose={() => setShowNewBeanModal(false)}
           onCreated={handleBeanCreated}
+        />
+      )}
+
+      {showNewBagModal && form.bean_id && (
+        <NewBagModal
+          beanId={form.bean_id}
+          beanName={beanName(form.bean_id)}
+          onClose={() => setShowNewBagModal(false)}
+          onCreated={handleBagCreated}
         />
       )}
     </div>
