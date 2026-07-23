@@ -44,7 +44,7 @@ export default function BeansPage() {
   const grouped = CONTINENT_ORDER.reduce<Record<string, Bean[]>>(
     (acc, continent) => {
       const matches = beans.filter(
-        (b) => (b.continent ?? "Unknown") === continent,
+        (b) => (b.continent || "Unknown") === continent,
       );
       if (matches.length > 0) acc[continent] = matches;
       return acc;
@@ -52,10 +52,13 @@ export default function BeansPage() {
     {},
   );
 
-  // Beans with no continent set fall into "Unknown"
-  const unassigned = beans.filter((b) => !b.continent);
-  if (unassigned.length > 0) {
-    grouped["Unknown"] = unassigned;
+  // Catch-all for any continent not in the CONTINENT_ORDER list
+  const knownContinents = new Set(CONTINENT_ORDER);
+  const others = beans.filter(
+    (b) => !b.continent || !knownContinents.has(b.continent),
+  );
+  if (others.length > 0 && !grouped["Unknown"]) {
+    grouped["Unknown"] = others;
   }
 
   function brewsForBean(beanId: number): Brew[] {
@@ -114,6 +117,7 @@ export default function BeansPage() {
         </button>
       </div>
 
+      {/* Main List */}
       {Object.keys(grouped).length === 0 ? (
         <p className="text-ink/60 text-sm">
           No beans yet — add one using the button above.
@@ -125,7 +129,7 @@ export default function BeansPage() {
               <p className="text-xs text-accent-strong uppercase tracking-widest mb-3">
                 {continent}
               </p>
-              <div className="grid grid-cols-2 gap-2 md:gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                 {continentBeans.map((bean) => {
                   const beanBrews = brewsForBean(bean.id);
                   const bestRating = beanBrews.reduce<number | null>(
@@ -135,10 +139,8 @@ export default function BeansPage() {
                         : best,
                     null,
                   );
-
                   return (
                     <div key={bean.id} className="relative">
-                      {/* Delete button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -149,8 +151,6 @@ export default function BeansPage() {
                       >
                         ✕
                       </button>
-
-                      {/* Card — clickable to open detail */}
                       <button
                         onClick={() => setSelectedBean(bean)}
                         className="w-full rounded-xl p-4 bg-card text-left hover:shadow-md transition-shadow pr-8"
@@ -164,13 +164,13 @@ export default function BeansPage() {
                             .join(", ")}
                           {bean.process ? ` · ${bean.process}` : ""}
                         </p>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-accent-roast text-card-ink-muted">
+                        <div className="flex items-center justify-between gap-2 mt-2">
+                          <span className="text-xs text-accent-roast text-card-ink-muted whitespace-nowrap">
                             {beanBrews.length} brew
                             {beanBrews.length !== 1 ? "s" : ""}
                           </span>
                           {bestRating !== null && (
-                            <span className="font-mono text-xs text-accent-strong font-semibold">
+                            <span className="font-mono text-xs text-accent-strong font-semibold whitespace-nowrap">
                               {bestRating}/10 best
                             </span>
                           )}

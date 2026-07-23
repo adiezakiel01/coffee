@@ -705,31 +705,35 @@ export default function BrewsPage() {
                     }
                   />
                   <div className="flex items-end gap-1">
-                    <WheelPicker
-                      label="Coffee"
-                      compact
-                      min={5}
-                      max={40}
-                      step={0.5}
-                      unit="g"
-                      value={editForm.coffee_grams}
-                      onChange={(v) =>
-                        setEditForm({ ...editForm, coffee_grams: v })
-                      }
-                    />
+                    <div className="flex-1 min-w-0">
+                      <WheelPicker
+                        label="Coffee"
+                        compact
+                        min={5}
+                        max={40}
+                        step={0.5}
+                        unit="g"
+                        value={editForm.coffee_grams}
+                        onChange={(v) =>
+                          setEditForm({ ...editForm, coffee_grams: v })
+                        }
+                      />
+                    </div>
                     <span className="text-card-ink-muted text-sm mb-1">/</span>
-                    <WheelPicker
-                      label="Water"
-                      compact
-                      min={50}
-                      max={600}
-                      step={5}
-                      unit="g"
-                      value={editForm.water_grams}
-                      onChange={(v) =>
-                        setEditForm({ ...editForm, water_grams: v })
-                      }
-                    />
+                    <div className="flex-1 min-w-0">
+                      <WheelPicker
+                        label="Water"
+                        compact
+                        min={50}
+                        max={600}
+                        step={5}
+                        unit="g"
+                        value={editForm.water_grams}
+                        onChange={(v) =>
+                          setEditForm({ ...editForm, water_grams: v })
+                        }
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="text-xs text-card-ink-muted block mb-1">

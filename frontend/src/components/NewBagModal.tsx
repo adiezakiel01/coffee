@@ -39,17 +39,17 @@ export default function NewBagModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-card rounded-xl p-5 w-80"
+        className="bg-card rounded-xl p-5 w-[90vw] max-w-sm"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-card-ink font-medium mb-1 text-accent-roast">
           New bag
         </h3>
-        <p className="text-xs text-accent-strong mb-3">{beanName}</p>
+        <p className="text-sm text-accent-strong mb-3">{beanName}</p>
         {error && <p className="text-red-700 text-xs mb-2">{error}</p>}
         <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
           <div>

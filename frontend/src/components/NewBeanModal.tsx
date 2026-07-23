@@ -50,11 +50,11 @@ export default function NewBeanModal({
   }
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-card rounded-xl p-5 w-80"
+        className="bg-card rounded-xl p-5 w-[90vw] max-w-sm"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="text-card-ink font-medium mb-3 text-accent-roast">
