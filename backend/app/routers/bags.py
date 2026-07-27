@@ -5,7 +5,7 @@ from app.database import get_db
 from app.models.bean import Bean
 from app.models.bag import Bag
 from app.models.brew import Brew
-from app.schemas.bag import BagCreate, BagResponse, BagWithStats
+from app.schemas.bag import BagCreate, BagUpdate, BagResponse, BagWithStats
 
 router = APIRouter(tags=["bags"])
 
@@ -58,6 +58,25 @@ async def list_bags_for_bean(bean_id: int, db: AsyncSession = Depends(get_db)):
             )
         )
     return bags_with_stats
+
+
+@router.patch("/bags/{bag_id}", response_model=BagResponse)
+async def update_bag(
+    bag_id: int, bag_data: BagUpdate, db: AsyncSession = Depends(get_db)
+):
+    bag = await db.get(Bag, bag_id)
+    if bag is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bag not found"
+        )
+
+    update_fields = bag_data.model_dump(exclude_unset=True)
+    for field, value in update_fields.items():
+        setattr(bag, field, value)
+
+    await db.commit()
+    await db.refresh(bag)
+    return bag
 
 
 @router.delete("/bags/{bag_id}", status_code=status.HTTP_204_NO_CONTENT)

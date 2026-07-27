@@ -27,12 +27,12 @@ export default function NewBagModal({
   const dateInputRef = useRef<HTMLInputElement>(null);
 
   function openDatePicker() {
-    const input = dateInputRef.current;
-    if (!input) return;
-    if (typeof input.showPicker === "function") {
-      input.showPicker();
-    } else {
-      input.focus();
+    if (dateInputRef.current) {
+      try {
+        dateInputRef.current.showPicker();
+      } catch (e) {
+        dateInputRef.current.focus();
+      }
     }
   }
 

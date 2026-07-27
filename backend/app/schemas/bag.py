@@ -10,6 +10,10 @@ class BagCreate(BagBase):
     bean_id: int
 
 
+class BagUpdate(BagBase):
+    pass
+
+
 class BagResponse(BagBase):
     model_config = ConfigDict(from_attributes=True)
     id: int

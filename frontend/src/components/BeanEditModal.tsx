@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { beansApi } from "@/lib/api";
 import type { Bean, BeanUpdate } from "@/types";
 import WheelPicker from "@/components/SliderInput";
@@ -18,6 +18,13 @@ interface BeanEditModalProps {
   bean: Bean;
   onClose: () => void;
   onSaved: (bean: Bean) => void;
+}
+
+function formatDDMMYYYY(isoDate: string): string {
+  if (!isoDate) return "";
+  const datePart = isoDate.split("T")[0];
+  const [year, month, day] = datePart.split("-");
+  return `${day}/${month}/${year}`;
 }
 
 export default function BeanEditModal({
@@ -40,6 +47,7 @@ export default function BeanEditModal({
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -56,6 +64,16 @@ export default function BeanEditModal({
       setError(err instanceof Error ? err.message : "Failed to save");
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  function openDatePicker() {
+    if (dateInputRef.current) {
+      try {
+        dateInputRef.current.showPicker();
+      } catch (e) {
+        dateInputRef.current.focus();
+      }
     }
   }
 
@@ -152,7 +170,7 @@ export default function BeanEditModal({
             {textField("process", "Process")}
 
             {/* Roast date */}
-            <div>
+            {/*}<div>
               <label className="text-xs text-card-ink-muted text-accent-roast uppercase tracking-wide block mb-1">
                 Roast date
               </label>
@@ -164,6 +182,32 @@ export default function BeanEditModal({
                 }
                 className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong text-card-ink border border-card-ink-muted/20"
               />
+            </div>*/}
+
+            <div>
+              <label className="text-xs text-accent-roast block mb-1 uppercase">
+                Roast date
+              </label>
+              <div className="relative w-full">
+                <div
+                  onClick={openDatePicker}
+                  className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer"
+                >
+                  {form.roast_date
+                    ? formatDDMMYYYY(form.roast_date)
+                    : "dd / mm / yyyy"}
+                </div>
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  value={form.roast_date ?? ""}
+                  onChange={(e) =>
+                    setForm({ ...form, roast_date: e.target.value || null })
+                  }
+                  className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+                  tabIndex={-1}
+                />
+              </div>
             </div>
 
             {/* Tasting notes — full width textarea */}
@@ -193,7 +237,7 @@ export default function BeanEditModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-card-ink-muted/15 text-card-ink rounded-lg py-2 text-sm"
+              className="flex-1 bg-red-600 text-card-ink rounded-lg py-2 text-sm"
             >
               Cancel
             </button>

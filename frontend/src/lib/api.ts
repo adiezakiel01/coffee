@@ -97,6 +97,11 @@ export const bagsApi = {
     apiFetch<BagWithStats[]>(`/beans/${beanId}/bags`),
   create: (data: BagCreate) =>
     apiFetch<Bag>("/bags", { method: "POST", body: JSON.stringify(data) }),
+  update: (bagId: number, data: { roast_date?: string | null }) =>
+    apiFetch<Bag>(`/bags/${bagId}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
   delete: (bagId: number) =>
     apiFetch<void>(`/bags/${bagId}`, { method: "DELETE" }),
 };

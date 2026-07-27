@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { bagsApi } from "@/lib/api";
 import type { Bean, Brew, BagWithStats } from "@/types";
 import NewBagModal from "@/components/NewBagModal";
+import { Pencil, Trash2, Check, X } from "lucide-react";
 
 interface BeanDetailModalProps {
   bean: Bean;
@@ -37,6 +38,11 @@ function formatRoastDate(dateStr: string | null): string {
   });
 }
 
+function isoToDDMMYYYY(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-");
+  return `${day}/${month}/${year}`;
+}
+
 export default function BeanDetailModal({
   bean,
   brews,
@@ -47,6 +53,10 @@ export default function BeanDetailModal({
   const [loadingBags, setLoadingBags] = useState(true);
   const [selectedBagId, setSelectedBagId] = useState<number | null>(null);
   const [showNewBagModal, setShowNewBagModal] = useState(false);
+
+  const [editingBagId, setEditingBagId] = useState<number | null>(null);
+  const [editRoastDate, setEditRoastDate] = useState("");
+  const editDateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,6 +97,70 @@ export default function BeanDetailModal({
     setBags((prev) => [withStats, ...prev]);
     setSelectedBagId(bag.id);
     setShowNewBagModal(false);
+  }
+
+  function startEditBag(bag: BagWithStats) {
+    setEditingBagId(bag.id);
+    setEditRoastDate(bag.roast_date ?? "");
+  }
+
+  {
+    /*function openEditDatePicker() {
+    const input = editDateInputRef.current;
+    if (!input) return;
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+    } else {
+      input.focus();
+    }
+  }*/
+  }
+  function openEditDatePicker() {
+    if (editDateInputRef.current) {
+      try {
+        editDateInputRef.current.showPicker();
+      } catch (e) {
+        editDateInputRef.current.focus();
+      }
+    }
+  }
+
+  async function saveEditBag(bagId: number) {
+    try {
+      const updated = await bagsApi.update(bagId, {
+        roast_date: editRoastDate || null,
+      });
+      setBags((prev) =>
+        prev
+          .map((b) =>
+            b.id === bagId ? { ...b, roast_date: updated.roast_date } : b,
+          )
+          .sort((a, b) => {
+            if (!a.roast_date && !b.roast_date) return 0;
+            if (!a.roast_date) return 1;
+            if (!b.roast_date) return -1;
+            return b.roast_date.localeCompare(a.roast_date);
+          }),
+      );
+      setEditingBagId(null);
+    } catch {}
+  }
+
+  async function deleteBag(bagId: number) {
+    if (
+      !confirm(
+        "Delete this bag? Brews logged against it will not be deleted, but they will no longer be associated with it.",
+      )
+    )
+      return;
+    try {
+      await bagsApi.delete(bagId);
+      setBags((prev) => prev.filter((b) => b.id !== bagId));
+      if (selectedBagId === bagId) {
+        const remaining = bags.filter((b) => b.id !== bagId);
+        setSelectedBagId(remaining.length > 0 ? remaining[0].id : null);
+      }
+    } catch {}
   }
 
   const unassignedBrews = brews.filter((b) => b.bag_id === null);
@@ -152,7 +226,7 @@ export default function BeanDetailModal({
             </p>
             <button
               onClick={() => setShowNewBagModal(true)}
-              className="text-xs bg-accent-strong rounded-lg px-2 py-1 text-ink font-medium"
+              className="text-xs text-accent-strong font-medium"
             >
               + Add bag
             </button>
@@ -161,35 +235,107 @@ export default function BeanDetailModal({
           {loadingBags ? (
             <p className="text-sm text-card-ink-muted">Loading bags...</p>
           ) : bags.length === 0 ? (
-            <p className="text-xs text-card-ink-muted text-accent-strong">
+            <p className="text-sm text-card-ink-muted text-accent-strong">
               No bags logged for this bean yet.
             </p>
           ) : (
             <div className="flex flex-col gap-1.5">
               {bags.map((bag) => {
                 const isSelected = selectedBagId === bag.id;
+                const isEditingThis = editingBagId === bag.id;
+
+                if (isEditingThis) {
+                  return (
+                    <div
+                      key={bag.id}
+                      className="rounded-lg px-3 py-2 bg-white border border-accent-strong/40"
+                    >
+                      <div className="relative w-full mb-2">
+                        <div
+                          onClick={openEditDatePicker}
+                          className="w-full rounded-lg px-2.5 py-1.5 text-xs bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer"
+                        >
+                          {editRoastDate
+                            ? isoToDDMMYYYY(editRoastDate)
+                            : "Select a date"}
+                        </div>
+                        <input
+                          ref={editDateInputRef}
+                          type="date"
+                          value={editRoastDate}
+                          onChange={(e) => setEditRoastDate(e.target.value)}
+                          className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+                          tabIndex={-1}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => saveEditBag(bag.id)}
+                          className="flex-1 bg-accent-strong text-ink rounded-md py-1 text-xs font-medium flex items-center justify-center gap-1"
+                        >
+                          <Check size={12} /> Save
+                        </button>
+                        <button
+                          onClick={() => setEditingBagId(null)}
+                          className="flex-1 bg-red-600 text-card-ink rounded-md py-1 text-xs flex items-center justify-center gap-1"
+                        >
+                          <X size={12} /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
-                  <button
+                  <div
                     key={bag.id}
-                    onClick={() => setSelectedBagId(bag.id)}
-                    className={`text-left rounded-lg px-3 py-2 text-xs transition-colors ${
+                    className={`rounded-lg px-3 py-2 text-xs flex items-center justify-between gap-2 transition-colors ${
                       isSelected
                         ? "bg-accent-strong text-ink"
                         : "bg-white/50 text-card-ink hover:bg-white/80"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium">
-                        {formatRoastDate(bag.roast_date)}
-                      </span>
-                      <span className="font-mono">
-                        {bag.brew_count} brew{bag.brew_count !== 1 ? "s" : ""}
-                        {bag.avg_rating !== null
-                          ? ` · ${bag.avg_rating}/10 avg`
-                          : ""}
-                      </span>
+                    <button
+                      onClick={() => setSelectedBagId(bag.id)}
+                      className="flex-1 text-left min-w-0"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium truncate">
+                          {formatRoastDate(bag.roast_date)}
+                        </span>
+                        <span className="font-mono flex-shrink-0">
+                          {bag.brew_count} brew{bag.brew_count !== 1 ? "s" : ""}
+                          {bag.avg_rating !== null
+                            ? ` · ${bag.avg_rating}/10`
+                            : ""}
+                        </span>
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startEditBag(bag);
+                        }}
+                        className={
+                          isSelected ? "text-ink/80" : "text-accent-roast"
+                        }
+                        title="Edit roast date"
+                      >
+                        <Pencil size={13} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteBag(bag.id);
+                        }}
+                        className={isSelected ? "text-ink/80" : "text-red-700"}
+                        title="Delete bag"
+                      >
+                        <Trash2 size={13} />
+                      </button>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
