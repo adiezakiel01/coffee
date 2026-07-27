@@ -212,20 +212,23 @@ export default function BeanDetailModal({
               {brewsForSelectedBag.map((brew) => (
                 <div
                   key={brew.id}
-                  className="flex items-center justify-between text-xs"
+                  className="text-xs border-b border-card-ink-muted/10 pb-2 last:border-0 last:pb-0"
                 >
-                  <span className="font-sans text-card-ink-muted">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-card-ink block">
+                      {brew.water_temp_celsius
+                        ? `${brew.water_temp_celsius}°C · `
+                        : ""}
+                      {brew.coffee_grams ?? "—"}g / {brew.water_grams ?? "—"}g
+                      {brew.grind_size ? ` · ${brew.grind_size}` : ""}
+                    </span>
+
+                    <span className="font-mono font-semibold text-accent-strong">
+                      {brew.rating ? `${brew.rating}/10` : "—"}
+                    </span>
+                  </div>
+                  <span className="font-display text-card-ink-muted">
                     {new Date(brew.brewed_at).toLocaleDateString()}
-                  </span>
-                  <span className="text-card-ink">
-                    {brew.water_temp_celsius
-                      ? `${brew.water_temp_celsius}°C · `
-                      : ""}
-                    {brew.coffee_grams ?? "—"}g / {brew.water_grams ?? "—"}g
-                    {brew.grind_size ? ` · ${brew.grind_size}` : ""}
-                  </span>
-                  <span className="font-mono font-semibold text-accent-strong">
-                    {brew.rating ? `${brew.rating}/10` : "—"}
                   </span>
                 </div>
               ))}

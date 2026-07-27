@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { bagsApi } from "@/lib/api";
 import type { Bag } from "@/types";
 
@@ -8,6 +8,11 @@ interface NewBagModalProps {
   beanName: string;
   onClose: () => void;
   onCreated: (bag: Bag) => void;
+}
+
+function formatDDMMYYYY(isoDate: string): string {
+  const [year, month, day] = isoDate.split("-");
+  return `${day}/${month}/${year}`;
 }
 
 export default function NewBagModal({
@@ -19,6 +24,17 @@ export default function NewBagModal({
   const [roastDate, setRoastDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  function openDatePicker() {
+    const input = dateInputRef.current;
+    if (!input) return;
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+    } else {
+      input.focus();
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,20 +65,29 @@ export default function NewBagModal({
         <h3 className="text-card-ink font-medium mb-1 text-accent-roast">
           New bag
         </h3>
-        <p className="text-sm text-accent-strong mb-3">{beanName}</p>
+        <p className="text-xs text-accent-strong mb-3">{beanName}</p>
         {error && <p className="text-red-700 text-xs mb-2">{error}</p>}
         <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
           <div>
             <label className="text-xs text-accent-roast block mb-1">
               Roast date
             </label>
-            <input
-              type="date"
-              value={roastDate}
-              onChange={(e) => setRoastDate(e.target.value)}
-              autoFocus
-              className="w-full rounded-lg px-3 py-2 text-sm bg-white text-card-ink text-accent-roast border border-card-ink-muted/20"
-            />
+            <div className="relative w-full">
+              <div
+                onClick={openDatePicker}
+                className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer"
+              >
+                {roastDate ? formatDDMMYYYY(roastDate) : "Select a date"}
+              </div>
+              <input
+                ref={dateInputRef}
+                type="date"
+                value={roastDate}
+                onChange={(e) => setRoastDate(e.target.value)}
+                className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+                tabIndex={-1}
+              />
+            </div>
           </div>
           <div className="flex gap-2 mt-2">
             <button
