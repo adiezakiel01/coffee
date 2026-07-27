@@ -39,6 +39,8 @@ function formatRoastDate(dateStr: string | null): string {
 }
 
 function isoToDDMMYYYY(isoDate: string): string {
+  if (!isoDate) return "";
+
   const [year, month, day] = isoDate.split("-");
   return `${day}/${month}/${year}`;
 }
@@ -115,7 +117,8 @@ export default function BeanDetailModal({
     }
   }*/
   }
-  function openEditDatePicker() {
+  {
+    /*function openEditDatePicker() {
     if (editDateInputRef.current) {
       try {
         editDateInputRef.current.showPicker();
@@ -123,6 +126,7 @@ export default function BeanDetailModal({
         editDateInputRef.current.focus();
       }
     }
+  }*/
   }
 
   async function saveEditBag(bagId: number) {
@@ -251,10 +255,7 @@ export default function BeanDetailModal({
                       className="rounded-lg px-3 py-2 bg-white border border-accent-strong/40"
                     >
                       <div className="relative w-full mb-2">
-                        <div
-                          onClick={openEditDatePicker}
-                          className="w-full rounded-lg px-2.5 py-1.5 text-xs bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer"
-                        >
+                        <div className="w-full rounded-lg px-2.5 py-1.5 text-xs bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer pointer-events-none">
                           {editRoastDate
                             ? isoToDDMMYYYY(editRoastDate)
                             : "Select a date"}
@@ -264,6 +265,11 @@ export default function BeanDetailModal({
                           type="date"
                           value={editRoastDate}
                           onChange={(e) => setEditRoastDate(e.target.value)}
+                          onClick={(e) => {
+                            try {
+                              e.currentTarget.showPicker();
+                            } catch {}
+                          }}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
                       </div>

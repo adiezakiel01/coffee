@@ -47,7 +47,9 @@ export default function BeanEditModal({
   });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const dateInputRef = useRef<HTMLInputElement>(null);
+  {
+    /*const dateInputRef = useRef<HTMLInputElement>(null);*/
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -67,7 +69,8 @@ export default function BeanEditModal({
     }
   }
 
-  function openDatePicker() {
+  {
+    /*function openDatePicker() {
     if (dateInputRef.current) {
       try {
         dateInputRef.current.showPicker();
@@ -75,6 +78,7 @@ export default function BeanEditModal({
         dateInputRef.current.focus();
       }
     }
+  }*/
   }
 
   function textField(
@@ -189,21 +193,22 @@ export default function BeanEditModal({
                 Roast date
               </label>
               <div className="relative w-full">
-                <div
-                  onClick={openDatePicker}
-                  className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer"
-                >
+                <div className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer pointer-events-none">
                   {form.roast_date
                     ? formatDDMMYYYY(form.roast_date)
                     : "dd / mm / yyyy"}
                 </div>
                 <input
-                  ref={dateInputRef}
                   type="date"
                   value={form.roast_date?.substring(0, 10) ?? ""}
                   onChange={(e) =>
                     setForm({ ...form, roast_date: e.target.value || null })
                   }
+                  onClick={(e) => {
+                    try {
+                      e.currentTarget.showPicker();
+                    } catch {}
+                  }}
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </div>

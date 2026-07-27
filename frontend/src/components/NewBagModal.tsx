@@ -11,6 +11,8 @@ interface NewBagModalProps {
 }
 
 function formatDDMMYYYY(isoDate: string): string {
+  if (!isoDate) return "";
+
   const [year, month, day] = isoDate.split("-");
   return `${day}/${month}/${year}`;
 }
@@ -24,9 +26,12 @@ export default function NewBagModal({
   const [roastDate, setRoastDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const dateInputRef = useRef<HTMLInputElement>(null);
+  {
+    /*const dateInputRef = useRef<HTMLInputElement>(null);*/
+  }
 
-  function openDatePicker() {
+  {
+    /*function openDatePicker() {
     if (dateInputRef.current) {
       try {
         dateInputRef.current.showPicker();
@@ -34,6 +39,7 @@ export default function NewBagModal({
         dateInputRef.current.focus();
       }
     }
+  }*/
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -73,17 +79,18 @@ export default function NewBagModal({
               Roast date
             </label>
             <div className="relative w-full">
-              <div
-                onClick={openDatePicker}
-                className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer"
-              >
+              <div className="w-full rounded-lg px-3 py-2 text-sm bg-white text-accent-strong border border-card-ink-muted/20 cursor-pointer pointer-events-none">
                 {roastDate ? formatDDMMYYYY(roastDate) : "Select a date"}
               </div>
               <input
-                ref={dateInputRef}
                 type="date"
                 value={roastDate}
                 onChange={(e) => setRoastDate(e.target.value)}
+                onClick={(e) => {
+                  try {
+                    e.currentTarget.showPicker();
+                  } catch {}
+                }}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
             </div>
