@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { beansApi } from "@/lib/api";
 import type { Bean, BeanUpdate } from "@/types";
 import WheelPicker from "@/components/SliderInput";

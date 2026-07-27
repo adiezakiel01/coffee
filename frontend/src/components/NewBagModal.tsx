@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { bagsApi } from "@/lib/api";
 import type { Bag } from "@/types";
 

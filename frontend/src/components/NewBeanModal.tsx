@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { beansApi } from "@/lib/api";
 import type { Bean } from "@/types";
 const CONTINENTS = [
