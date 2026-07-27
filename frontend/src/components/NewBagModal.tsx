@@ -30,7 +30,7 @@ export default function NewBagModal({
     if (dateInputRef.current) {
       try {
         dateInputRef.current.showPicker();
-      } catch (e) {
+      } catch {
         dateInputRef.current.focus();
       }
     }
@@ -84,8 +84,7 @@ export default function NewBagModal({
                 type="date"
                 value={roastDate}
                 onChange={(e) => setRoastDate(e.target.value)}
-                className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
-                tabIndex={-1}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
             </div>
           </div>

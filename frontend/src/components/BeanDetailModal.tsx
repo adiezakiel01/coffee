@@ -119,7 +119,7 @@ export default function BeanDetailModal({
     if (editDateInputRef.current) {
       try {
         editDateInputRef.current.showPicker();
-      } catch (e) {
+      } catch {
         editDateInputRef.current.focus();
       }
     }
@@ -264,8 +264,7 @@ export default function BeanDetailModal({
                           type="date"
                           value={editRoastDate}
                           onChange={(e) => setEditRoastDate(e.target.value)}
-                          className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
-                          tabIndex={-1}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
                       </div>
                       <div className="flex gap-2">

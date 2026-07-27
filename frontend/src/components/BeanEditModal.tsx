@@ -71,7 +71,7 @@ export default function BeanEditModal({
     if (dateInputRef.current) {
       try {
         dateInputRef.current.showPicker();
-      } catch (e) {
+      } catch {
         dateInputRef.current.focus();
       }
     }
@@ -200,12 +200,11 @@ export default function BeanEditModal({
                 <input
                   ref={dateInputRef}
                   type="date"
-                  value={form.roast_date ?? ""}
+                  value={form.roast_date?.substring(0, 10) ?? ""}
                   onChange={(e) =>
                     setForm({ ...form, roast_date: e.target.value || null })
                   }
-                  className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
-                  tabIndex={-1}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </div>
             </div>
