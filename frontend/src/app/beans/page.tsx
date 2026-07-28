@@ -239,13 +239,13 @@ export default function BeansPage() {
               <button
                 onClick={handleDeleteConfirm}
                 disabled={deleteLoading}
-                className="flex-1 bg-red-700 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50"
+                className="flex-1 bg-red-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50"
               >
                 {deleteLoading ? "Deleting..." : "Yes, delete"}
               </button>
               <button
                 onClick={() => setDeletingBean(null)}
-                className="flex-1 bg-card-ink-muted/15 text-card-ink rounded-lg py-2 text-sm"
+                className="flex-1 bg-accent-strong text-card-ink rounded-lg py-2 text-sm"
               >
                 Cancel
               </button>
