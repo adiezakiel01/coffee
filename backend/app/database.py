@@ -1,3 +1,4 @@
+from urllib.parse import urlparse, urlunparse, parse_qs, urlencode
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from app.config import settings
@@ -15,10 +16,23 @@ def to_asyncpg_url(url: str) -> str:
     return url
 
 
+def strip_sslmode(url: str) -> tuple[str, dict]:
+    """Strip the sslmode query parameter from the URL and return it as a dict"""
+    parsed = urlparse(url)
+    query = parse_qs(parsed.query)
+
+    sslmode = query.pop("sslmode", None)
+    connect_args = {"ssl": "require"} if sslmode else {}
+
+    clean_query = urlencode(query, doseq=True)
+    clean_url = urlunparse(parsed._replace(query=clean_query))
+    return clean_url, connect_args
+
+
+_clean_url, _connect_args = strip_sslmode(to_asyncpg_url(settings.database_url))
+
 engine = create_async_engine(
-    to_asyncpg_url(settings.database_url),
-    pool_pre_ping=True,
-    echo=False,
+    _clean_url, pool_pre_ping=True, echo=False, connect_args=_connect_args
 )
 
 AsyncSessionLocal = async_sessionmaker(
@@ -35,4 +49,3 @@ class Base(DeclarativeBase):
 async def get_db() -> AsyncSession:
     async with AsyncSessionLocal() as session:
         yield session
-
