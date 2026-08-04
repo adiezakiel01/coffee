@@ -16,12 +16,17 @@ def to_asyncpg_url(url: str) -> str:
     return url
 
 
+_LIBPQ_ONLY_PARAMS = ("sslmode", "channel_binding")
+
+
 def strip_sslmode(url: str) -> tuple[str, dict]:
     """Strip the sslmode query parameter from the URL and return it as a dict"""
     parsed = urlparse(url)
     query = parse_qs(parsed.query)
 
     sslmode = query.pop("sslmode", None)
+    for param in _LIBPQ_ONLY_PARAMS:
+        query.pop(param, None)
     connect_args = {"ssl": "require"} if sslmode else {}
 
     clean_query = urlencode(query, doseq=True)
